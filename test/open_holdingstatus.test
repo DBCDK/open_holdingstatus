@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * @file
+ * Test case for OpenHldingsStatus localisation & holdings.
+ */
+
+class BibdkBorchkWebserviceTestCast extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => t('Borchk test'),
+      'description' => t('check if borchk webservice is alive'),
+      'group' => t('bibliotek.dk'),
+    );
+  }
+
+  public function setUp() {
+    $this->profile = 'bibdk';
+    parent::setUp(array('ting_client', 'open_holdingstatus'));
+    variable_set('open_holdingstatus_url', 'http://borchk.addi.dk/');
+    variable_set('open_holdingstatus_servicerequester', 'bibliotek.dk');
+  }
+
+  public function testWebservice() {
+    $response = open_holdingstatus_request('0019', '0019', 'DK-716500', 'xml');
+    $matches = array();
+    $pattern = '/borrowerCheckResponse/';
+    preg_match($pattern, $response, $matches);
+    $this->assertTrue(!empty($matches));
+  }
+}

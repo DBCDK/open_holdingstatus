@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * Install file for open_holdingstatus
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function open_holdingstatus_schema() {
+  $schema['cache_holdingstatus_webservice'] = drupal_get_schema_unprocessed('system', 'cache');
+  return $schema;
+}
+
