@@ -37,17 +37,33 @@ function open_holdingstatus_localisationRequest($pid, $agencyId = 'DK-870970', $
 
   $response = unserialize($response)->localisationsResponse->_value->localisations;
 
-  if (isset($response->error)) {
-    $error = $this->getValue($response->error);
+  if ( isset($response->error) ) {
+    $error = $response->error->_value;
     drupal_set_message(t($error, array(), array('context' => 'open_holdingstatus')), 'error');
   }
   else {
     foreach ($response as $localisation) {
-      $pid = $localisation->_value->pid[0]->_value;
+      if ( isset($localisation->_value->pid) ) {
+        if ( isset($localisation->_value->pid->_value) ) {
+          $pid = $localisation->_value->pid->_value;
+        }
+        else {
+          $pid = $localisation->_value->pid[0]->_value;
+        }
+      }
+      if ( isset($localisation->_value->errorMessage) ) {
+        if ( isset($localisation->_value->errorMessage->_value) ) {
+          $localisations[$pid]['error_message'] = $localisation->_value->errorMessage->_value;
+        }
+      }
       $agencies = ( isset($localisation->_value->agency) ) ? $localisation->_value->agency : array();
       foreach ($agencies as $agency) {
-        $localisations[$pid][] = array(
+        $localisations[$pid]['agencies'][] = array(
+          'localisationPid' => $agency->_value->localisationPid->_value,
           'agencyId' => $agency->_value->agencyId->_value,
+          'note' => ( isset($agency->_value->note) ) ? $agency->_value->note->_value : '',
+          'codes' => ( isset($agency->_value->codes) ) ? $agency->_value->codes->_value : '',
+          'callNumber' => ( isset($agency->_value->callNumber) ) ? $agency->_value->callNumber->_value : '',
           'localIdentifier' => $agency->_value->localIdentifier->_value,
         );
       }
@@ -67,7 +83,7 @@ function open_holdingstatus_form_ting_client_admin_webservices_settings_alter(&$
   $form['ting']['open_holdingstatus_url'] = array(
     '#type' => 'textfield',
     '#title' => t('OpenHoldingStatus URL'),
-    '#description' => t('URL to OpenHoldingStatus e.g.: http://openholdingstatus.addi.dk/1.0/ (or http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenHoldingStatus/trunk/server.php)'),
+    '#description' => t('URL to OpenHoldingStatus e.g.: http://openholdingstatus.addi.dk/1.0/'),
     '#required' => TRUE,
     '#default_value' => variable_get('open_holdingstatus_url', FALSE),
   );
@@ -80,3 +96,21 @@ function open_holdingstatus_form_ting_client_admin_webservices_settings_alter(&$
 function open_holdingstatus_how_r_u() {
   return array('Holdingstatus' => variable_get('open_holdingstatus_url'));
 }
+
+
+/**
+ * Error codes
+ */
+t('service_unavailable', array(), array('context' => 'open_holdingstatus'));
+t('error_in_request', array(), array('context' => 'open_holdingstatus'));
+t('service_not_supported_by_library', array(), array('context' => 'open_holdingstatus'));
+t('cannot_parse_library_answer', array(), array('context' => 'open_holdingstatus'));
+t('item_not_found', array(), array('context' => 'open_holdingstatus'));
+t('error_searching_library', array(), array('context' => 'open_holdingstatus'));
+t('error_fetching_request_order', array(), array('context' => 'open_holdingstatus'));
+t('no_holding_return_from_library', array(), array('context' => 'open_holdingstatus'));
+t('no_holdings_specified_by_library', array(), array('context' => 'open_holdingstatus'));
+t('authentication_error', array(), array('context' => 'open_holdingstatus'));
+t('agency_not_found', array(), array('context' => 'open_holdingstatus'));
+t('no_agencies_found', array(), array('context' => 'open_holdingstatus'));
+
