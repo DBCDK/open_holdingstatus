@@ -39,8 +39,12 @@ function open_holdingstatus_localisationRequest($pid, $agencyId = 'DK-870970', $
   else {
     foreach ($response->localisationsResponse->localisations as $localisation) {
       if ( isset($localisation->pid) ) {
-        $normalize_pid = (array)$localisation->pid;
-        $pid = $normalize_pid[0]->{'$'};
+        if ( isset($localisation->pid->{'$'}) ) {
+          $pid = $localisation->pid->{'$'};
+        }
+        else {
+          $pid = $localisation->pid[0]->{'$'};
+        }
       }
       if ( isset($localisation->errorMessage) ) {
         $localisations['error_message'][$pid] = $localisation->errorMessage->{'$'};
