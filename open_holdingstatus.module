@@ -92,6 +92,7 @@ function open_holdingstatus_localisationRequest_old($pid, $agencyId = 'DK-870970
     drupal_set_message(t($error, array(), array('context' => 'open_holdingstatus')), 'error');
   }
   else {
+    $agencyIds = array();
     foreach ($response as $localisation) {
       if ( isset($localisation->_value->pid) ) {
         if ( isset($localisation->_value->pid->_value) ) {
@@ -107,7 +108,9 @@ function open_holdingstatus_localisationRequest_old($pid, $agencyId = 'DK-870970
         }
       }
       $agencies = ( isset($localisation->_value->agency) ) ? $localisation->_value->agency : array();
+
       foreach ($agencies as $agency) {
+        $agencyIds[] = $agency->_value->agencyId->_value;
         $localisations[$pid]['agencies'][] = array(
           'localisationPid' => $agency->_value->localisationPid->_value,
           'agencyId' => $agency->_value->agencyId->_value,
@@ -119,10 +122,29 @@ function open_holdingstatus_localisationRequest_old($pid, $agencyId = 'DK-870970
       }
     }
   }
-
   return $localisations;
 }
 
+function open_holdingstatus_holdingsRequest (array $agency_ids, $pid, $outputType = 'json'){
+  $client = new ting_client_class();
+
+  foreach($agency_ids as $agency_id){
+    $lookupRecord[] = array(
+      'responderId' => $agency_id,
+      'pid' => $pid,
+    );
+  }
+  $request = array(
+    'action'         => 'holdingsRequest',
+    'authentication' => FALSE,
+    'lookupRecord'       => $lookupRecord,
+    'outputType'     => $outputType,
+    'callback'       => FALSE,
+  );
+  $response = $client->do_holdingstatus($request);
+  // TODO : Error handling
+  return $response->holdingsResponse->responder;
+}
 
 /**
  * Implements hook_form_FORM_ID_alter (ting_client_admin_webservices_settings)
