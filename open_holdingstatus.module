@@ -65,65 +65,6 @@ function open_holdingstatus_localisationRequest($pid, $agencyId = 'DK-870970', $
   return $localisations;
 }
 
-/**
- * do a localisation request
- * */
-function open_holdingstatus_localisationRequest_old($pid, $agencyId = 'DK-870970', $mergePids = FALSE, $outputType = 'php') {
-
-  $localisations = array();
-
-  $client = new ting_client_class();
-  $response = $client->do_holdingstatus(
-    array(
-      'action'         => 'localisationsRequest',
-      'authentication' => FALSE,
-      'agencyId'       => $agencyId,
-      'pid'            => $pid,
-      'mergePids'      => $mergePids,
-      'outputType'     => $outputType,
-      'callback'       => FALSE,
-    )
-  );
-
-  $response = unserialize($response)->localisationsResponse->_value->localisations;
-
-  if ( isset($response->error) ) {
-    $error = $response->error->_value;
-    drupal_set_message(t($error, array(), array('context' => 'open_holdingstatus')), 'error');
-  }
-  else {
-    $agencyIds = array();
-    foreach ($response as $localisation) {
-      if ( isset($localisation->_value->pid) ) {
-        if ( isset($localisation->_value->pid->_value) ) {
-          $pid = $localisation->_value->pid->_value;
-        }
-        else {
-          $pid = $localisation->_value->pid[0]->_value;
-        }
-      }
-      if ( isset($localisation->_value->errorMessage) ) {
-        if ( isset($localisation->_value->errorMessage->_value) ) {
-          $localisations[$pid]['error_message'] = $localisation->_value->errorMessage->_value;
-        }
-      }
-      $agencies = ( isset($localisation->_value->agency) ) ? $localisation->_value->agency : array();
-
-      foreach ($agencies as $agency) {
-        $agencyIds[] = $agency->_value->agencyId->_value;
-        $localisations[$pid]['agencies'][] = array(
-          'localisationPid' => $agency->_value->localisationPid->_value,
-          'agencyId' => $agency->_value->agencyId->_value,
-          'note' => ( isset($agency->_value->note) ) ? $agency->_value->note->_value : '',
-          'codes' => ( isset($agency->_value->codes) ) ? $agency->_value->codes->_value : '',
-          'callNumber' => ( isset($agency->_value->callNumber) ) ? $agency->_value->callNumber->_value : '',
-          'localIdentifier' => $agency->_value->localIdentifier->_value,
-        );
-      }
-    }
-  }
-  return $localisations;
-}
 
 function open_holdingstatus_holdingsRequest (array $agency_ids, $pid, $outputType = 'json'){
   $client = new ting_client_class();
