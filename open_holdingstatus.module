@@ -73,7 +73,7 @@ function open_holdingstatus_localisationRequest($pid, $agencyId = 'DK-870970', $
  * @param string $outputType
  * @return array
  */
-function open_holdingstatus_holdingsRequest (array $agency_ids, string $pid, string $outputType = 'json'){
+function open_holdingstatus_holdingsRequest ($agency_ids, $pid, $outputType = 'json'){
   $client = new ting_client_class();
 
   foreach($agency_ids as $agency_id){
