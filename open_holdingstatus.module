@@ -33,7 +33,7 @@ function open_holdingstatus_localisationRequest($pid, $agencyId = 'DK-870970', $
   );
 
   if ( isset($response->error) ) {
-    $error = $response->error;
+    $error = $response->error->errorMessage->{'$'};
     drupal_set_message(t($error, array(), array('context' => 'open_holdingstatus')), 'error');
   }
   else {
