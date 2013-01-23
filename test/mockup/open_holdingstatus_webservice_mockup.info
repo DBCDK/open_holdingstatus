@@ -1,4 +1,4 @@
-name = "borchk mockup"
+name = "open_holdingstatus mockup"
 description = "Support module for open_holdingstatus test."
 package = bibliotek.dk
 version = VERSION

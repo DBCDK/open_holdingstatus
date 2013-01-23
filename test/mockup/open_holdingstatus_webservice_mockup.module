@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Webservice mockup of Open Agency
+ * Webservice mockup of openHoldingstatus
  */
 function open_holdingstatus_webservice_mockup_menu() {
   $items['open_holdingstatus_webservice'] = array(
@@ -18,22 +18,28 @@ function open_holdingstatus_webservice_mockup_menu() {
 }
 
 function open_holdingstatus_webservice_test() {
-  return '<form name="test" action="open_holdingstatus_webservice" method="POST" target="_blank"><textarea name="xml"></textarea><input type="submit" name="sub" value="submit"/></form>';
+  return '
+    <form name="test" action="open_holdingstatus_webservice" method="POST" target="_blank">
+      <textarea name="xml"></textarea>
+      <input type="submit" name="sub" value="submit"/>
+    </form>';
 }
 
 
 /**
- * Faking the request and returns result. If other requests are made than on city = københavn an error will be returned.
+ * Faking the request and returns result.
+ * If other requests are made than on pid[0] = 870970-basis:28542941 &&  pid[0] = 870970-basis:28794932 no holdings will be returned.
  * @return String json
  */
 function open_holdingstatus_webservice_mockup_request() {
-   if (isset($_POST['xml'])) {
+  if (isset($_POST['xml'])) {
     $data = rawurldecode($_POST['xml']);
   }
   else {
     $data = file_get_contents('php://input');
   }
   $path = drupal_get_path('module', 'open_holdingstatus_webservice_mockup');
+
   if( $data ) {
     $envelope = open_holdingstatus_webservice_mockup_parse_xml($data);
   }
@@ -42,20 +48,25 @@ function open_holdingstatus_webservice_mockup_request() {
     return;
   }
 
-  $request = $envelope->Body->children()->borrowerCheckRequest;
-  // good user
-  $gooduser = ( $request->serviceRequester == 'bibliotek.dk' &&
-              $request->libraryCode == 'DK-872920' &&
-              $request->userId == '0019' &&
-              $request->userPincode == '0019');
+  $request = $envelope->Body->localisationsRequest;
+
+  $holdings_ok = FALSE;
+
+  $holdings_ok = ( $request->agencyId == 'DK-870970' &&
+                   $request->pid[0]   == '870970-basis:28542941' &&
+                   $request->pid[1]   == '870970-basis:28794932' );
+
   drupal_add_http_header('Content-Type', 'application/json');
-  if( $gooduser ) {
-    $resp = file_get_contents($path.'/gooduser.json');
+
+  if ( $holdings_ok ) {
+    $resp = file_get_contents($path.'/holdings_ok.json');
   }
-  else{
-    $resp = file_get_contents($path.'/baduser.json');
+  else {
+    $resp = file_get_contents($path.'/holdings_none.json');
   }
+
   print $resp;
+
 }
 
 /**
