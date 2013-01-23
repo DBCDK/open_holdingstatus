@@ -66,7 +66,14 @@ function open_holdingstatus_localisationRequest($pid, $agencyId = 'DK-870970', $
 }
 
 
-function open_holdingstatus_holdingsRequest (array $agency_ids, $pid, $outputType = 'json'){
+/**
+ * Do holdings_request
+ * @param array $agency_ids
+ * @param string $pid
+ * @param string $outputType
+ * @return array
+ */
+function open_holdingstatus_holdingsRequest (array $agency_ids, string $pid, string $outputType = 'json'){
   $client = new ting_client_class();
 
   foreach($agency_ids as $agency_id){
@@ -83,8 +90,17 @@ function open_holdingstatus_holdingsRequest (array $agency_ids, $pid, $outputTyp
     'callback'       => FALSE,
   );
   $response = $client->do_holdingstatus($request);
-  // TODO : Error handling
-  return $response->holdingsResponse->responder;
+
+  $return = array();
+
+  // correct responses and error responses are divided into two methods. But we want to combine these
+  if (isset($response->holdingsResponse->responder))
+    $return = array_merge($return, $response->holdingsResponse->responder);
+  if (isset($response->holdingsResponse->error)){
+    $return = array_merge($return, $response->holdingsResponse->error);
+  }
+
+  return $return;
 }
 
 /**
