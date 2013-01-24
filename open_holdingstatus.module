@@ -110,6 +110,7 @@ function _open_holdingstatus_parse_localisationsRequest($response) {
  */
 function open_holdingstatus_holdingsRequest ($agency_ids, $pid, $outputType = 'json'){
   $client = new ting_client_class();
+  $lookupRecord = array();
 
   foreach($agency_ids as $agency_id){
     $lookupRecord[] = array(
