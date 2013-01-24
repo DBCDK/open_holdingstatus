@@ -5,27 +5,44 @@
  * Test case for OpenHldingsStatus localisation & holdings.
  */
 
-class OpenHoldingstatusWebserviceTestCast extends DrupalWebTestCase {
+class LocalisationRequestTestCase extends DrupalUnitTestCase {
+
+  private  $holdings_ok;
+  private  $holdings_ok_result;
+  private  $holdings_none;
+  private  $holdings_none_result;
 
   public static function getInfo() {
     return array(
-      'name' => t('Holdingstatus test'),
-      'description' => t('check if holdingstatus webservice is alive'),
+      'name' => t('Open holdingstatus : LocalisationRequest test'),
+      'description' => t('Check if parsing a localisationRequest return a valid array of localisations'),
       'group' => t('bibliotek.dk'),
     );
   }
 
   public function setUp() {
-    $this->profile = 'bibdk';
-    parent::setUp(array('ting_client', 'open_holdingstatus'));
-    variable_set('open_holdingstatus_url', 'http://http://openholdingstatus.addi.dk/1.0/');
+    $this->profile = 'minimum';
+    parent::setUp(array('open_holdingstatus'));
   }
 
-  public function testWebservice() {
-    $response = open_holdingstatus_localisationRequest('870970-basis:28542941','DK-870970',0,'xml');
-    $matches = array();
-    $pattern = '/localisationsResponse/';
-    preg_match($pattern, $response, $matches);
-    $this->assertTrue(!empty($matches));
+  function test_parse_localisationRequest() {
+    $file = file_get_contents(drupal_get_path('module', 'open_holdingstatus') . '/test/mockup/holdings_ok.json');
+    $this->holdings_ok = json_decode($file);
+    $result = _open_holdingstatus_parse_localisationsRequest($this->holdings_ok);
+    $this->holdings_ok_result = file_get_contents(drupal_get_path('module', 'open_holdingstatus') . '/test/mockup/holdings_ok.array.php');
+    $result = ( serialize($result) == $this->holdings_ok_result );
+    $message = 'LocalisationRequest with 16 localisations is parsed correctly';
+    $this->assertTrue($result, $message);
   }
+
+  function test_parse_empty_localisationRequest() {
+    $file = file_get_contents(drupal_get_path('module', 'open_holdingstatus') . '/test/mockup/holdings_none.json');
+    $this->holdings_ok = json_decode($file);
+    $result = _open_holdingstatus_parse_localisationsRequest($this->holdings_ok);
+    $this->holdings_none_result = file_get_contents(drupal_get_path('module', 'open_holdingstatus') . '/test/mockup/holdings_none.array.php');
+    $result = ( serialize($result) == $this->holdings_none_result );
+    $message = 'LocalisationRequest with 0 localisations is parsed correctly';
+    $this->assertTrue($result, $message);
+  }
+
 }
