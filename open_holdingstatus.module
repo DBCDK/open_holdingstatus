@@ -16,9 +16,31 @@ function open_holdingstatus_ting_client_webservice() {
 }
 
 /**
- * do a localisation request
+ * Get localisations
+ * @param array $pid
+ * @param string $agency_id
  * */
-function open_holdingstatus_localisationRequest($pid, $agencyId = 'DK-870970', $mergePids = FALSE, $outputType = 'json') {
+function open_holdingstatus_localisationRequest($pid, $agencyId = 'DK-870970') {
+  $mergePids = FALSE;
+  $outputType = 'json';
+
+  $response = _open_holdingstatus_client_localisationsRequest($pid, $agencyId, $mergePids, $outputType);
+
+  $localisations = _open_holdingstatus_parse_localisationsRequest($response);
+
+  return $localisations;
+}
+
+
+/**
+ * Do localisation request
+ * @param array $pid
+ * @param string $agency_id
+ * @param boolean $mergePids
+ * @param string $outputType
+ * @return array
+ */
+function _open_holdingstatus_client_localisationsRequest($pid, $agencyId, $mergePids, $outputType) {
   $client = new ting_client_class();
   $response = $client->do_holdingstatus(
     array(
@@ -31,6 +53,17 @@ function open_holdingstatus_localisationRequest($pid, $agencyId = 'DK-870970', $
       'callback'       => FALSE,
     )
   );
+  return $response;
+}
+
+
+/**
+ * Parse a localisation request
+ * @param array $response
+ * @return array
+ */
+function _open_holdingstatus_parse_localisationsRequest($response) {
+  $localisations = array();
 
   if ( isset($response->error) ) {
     $error = $response->error->errorMessage->{'$'};
@@ -62,7 +95,9 @@ function open_holdingstatus_localisationRequest($pid, $agencyId = 'DK-870970', $
       }
     }
   }
+  
   return $localisations;
+
 }
 
 
