@@ -1,0 +1,10 @@
+<SOAP-ENV:Envelope>
+  <SOAP-ENV:Body>
+    <localisationsRequest>
+      <agencyId>DK-870970</agencyId>
+      <pid>870970-basis:28657110</pid>
+      <pid>870970-basis:28985843</pid>
+      <outputType>json</outputType>
+    </localisationsRequest>
+  </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

@@ -9,6 +9,8 @@ class open_holdingstatus extends TingClientRequest Implements ITingClientRequest
 
   protected $agencyId;
   protected $pid;
+  protected $lookupRecord;
+  protected $responderId;
   protected $cacheKey;
   protected $outputType;
   protected $action;
@@ -102,6 +104,22 @@ class open_holdingstatus extends TingClientRequest Implements ITingClientRequest
 
   public function getPid() {
     return $this->pid;
+  }
+
+  public function setLookupRecord($value = NULL) {
+    $this->lookupRecord = $value;
+  }
+
+  public function getLookupRecord() {
+    return $this->lookupRecord;
+  }
+
+  public function setResponderId($value = NULL) {
+    $this->responderId = $value;
+  }
+
+  public function getresponderId() {
+    return $this->responderId;
   }
 
   public function setAction($value = NULL) {

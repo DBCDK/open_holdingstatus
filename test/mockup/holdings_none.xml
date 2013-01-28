@@ -1,0 +1,9 @@
+<SOAP-ENV:Envelope>
+  <SOAP-ENV:Body>
+    <mergePidlocalisationsRequest>
+      <mergePidagencyId>DK-870970</mergePidagencyId>
+      <mergePidpid>870970-basis:12341234</mergePidpid>
+      <mergePidoutputType>json</mergePidoutputType>
+    </mergePidlocalisationsRequest>
+  </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

@@ -16,12 +16,31 @@ function open_holdingstatus_ting_client_webservice() {
 }
 
 /**
- * do a localisation request
+ * Get localisations
+ * @param array $pid
+ * @param string $agency_id
  * */
-function open_holdingstatus_localisationRequest($pid, $agencyId = 'DK-870970', $mergePids = FALSE, $outputType = 'php') {
+function open_holdingstatus_localisationRequest($pid, $agencyId = 'DK-870970') {
+  $mergePids = FALSE;
+  $outputType = 'json';
 
-  $localisations = array();
+  $response = _open_holdingstatus_client_localisationsRequest($pid, $agencyId, $mergePids, $outputType);
 
+  $localisations = _open_holdingstatus_parse_localisationsRequest($response);
+
+  return $localisations;
+}
+
+
+/**
+ * Do localisation request
+ * @param array $pid
+ * @param string $agency_id
+ * @param boolean $mergePids
+ * @param string $outputType
+ * @return array
+ */
+function _open_holdingstatus_client_localisationsRequest($pid, $agencyId, $mergePids, $outputType) {
   $client = new ting_client_class();
   $response = $client->do_holdingstatus(
     array(
@@ -34,29 +53,91 @@ function open_holdingstatus_localisationRequest($pid, $agencyId = 'DK-870970', $
       'callback'       => FALSE,
     )
   );
+  return $response;
+}
 
-  $response = unserialize($response)->localisationsResponse->_value->localisations;
 
-  if (isset($response->error)) {
-    $error = $this->getValue($response->error);
+/**
+ * Parse a localisation request
+ * @param array $response
+ * @return array
+ */
+function _open_holdingstatus_parse_localisationsRequest($response) {
+  $localisations = array();
+
+  if ( isset($response->error) ) {
+    $error = $response->error->errorMessage->{'$'};
     drupal_set_message(t($error, array(), array('context' => 'open_holdingstatus')), 'error');
   }
   else {
-    foreach ($response as $localisation) {
-      $pid = $localisation->_value->pid[0]->_value;
-      $agencies = ( isset($localisation->_value->agency) ) ? $localisation->_value->agency : array();
+    foreach ($response->localisationsResponse->localisations as $localisation) {
+      if ( isset($localisation->pid) ) {
+        if ( isset($localisation->pid->{'$'}) ) {
+          $pid = $localisation->pid->{'$'};
+        }
+        else {
+          $pid = $localisation->pid[0]->{'$'};
+        }
+      }
+      if ( isset($localisation->errorMessage) ) {
+        $localisations['error_message'][$pid] = $localisation->errorMessage->{'$'};
+      }
+      $agencies = ( isset($localisation->agency) ) ? $localisation->agency : array();
       foreach ($agencies as $agency) {
-        $localisations[$pid][] = array(
-          'agencyId' => $agency->_value->agencyId->_value,
-          'localIdentifier' => $agency->_value->localIdentifier->_value,
+        $agencyId = $agency->agencyId->{'$'};
+        $localisations['agencies'][$agencyId]['holdings'][$pid] = array(
+          'localisationPid' => $agency->localisationPid->{'$'},
+          'note' => ( isset($agency->note) ) ? $agency->note->{'$'} : '',
+          'codes' => ( isset($agency->codes) ) ? $agency->codes->{'$'} : '',
+          'callNumber' => ( isset($agency->callNumber) ) ? $agency->callNumber->{'$'} : '',
+          'localIdentifier' => $agency->localIdentifier->{'$'},
         );
       }
     }
   }
-
+  
   return $localisations;
+
 }
 
+
+/**
+ * Do holdings_request
+ * @param array $agency_ids
+ * @param string $pid
+ * @param string $outputType
+ * @return array
+ */
+function open_holdingstatus_holdingsRequest ($agency_ids, $pid, $outputType = 'json'){
+  $client = new ting_client_class();
+  $lookupRecord = array();
+
+  foreach($agency_ids as $agency_id){
+    $lookupRecord[] = array(
+      'responderId' => $agency_id,
+      'pid' => $pid,
+    );
+  }
+  $request = array(
+    'action'         => 'holdingsRequest',
+    'authentication' => FALSE,
+    'lookupRecord'       => $lookupRecord,
+    'outputType'     => $outputType,
+    'callback'       => FALSE,
+  );
+  $response = $client->do_holdingstatus($request);
+
+  $return = array();
+
+  // correct responses and error responses are divided into two methods. But we want to combine these
+  if (isset($response->holdingsResponse->responder))
+    $return = array_merge($return, $response->holdingsResponse->responder);
+  if (isset($response->holdingsResponse->error)){
+    $return = array_merge($return, $response->holdingsResponse->error);
+  }
+
+  return $return;
+}
 
 /**
  * Implements hook_form_FORM_ID_alter (ting_client_admin_webservices_settings)
@@ -67,7 +148,7 @@ function open_holdingstatus_form_ting_client_admin_webservices_settings_alter(&$
   $form['ting']['open_holdingstatus_url'] = array(
     '#type' => 'textfield',
     '#title' => t('OpenHoldingStatus URL'),
-    '#description' => t('URL to OpenHoldingStatus e.g.: http://openholdingstatus.addi.dk/1.0/ (or http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenHoldingStatus/trunk/server.php)'),
+    '#description' => t('URL to OpenHoldingStatus e.g.: http://openholdingstatus.addi.dk/1.0/'),
     '#required' => TRUE,
     '#default_value' => variable_get('open_holdingstatus_url', FALSE),
   );
@@ -80,3 +161,21 @@ function open_holdingstatus_form_ting_client_admin_webservices_settings_alter(&$
 function open_holdingstatus_how_r_u() {
   return array('Holdingstatus' => variable_get('open_holdingstatus_url'));
 }
+
+
+/**
+ * Error codes
+ */
+t('service_unavailable', array(), array('context' => 'open_holdingstatus'));
+t('error_in_request', array(), array('context' => 'open_holdingstatus'));
+t('service_not_supported_by_library', array(), array('context' => 'open_holdingstatus'));
+t('cannot_parse_library_answer', array(), array('context' => 'open_holdingstatus'));
+t('item_not_found', array(), array('context' => 'open_holdingstatus'));
+t('error_searching_library', array(), array('context' => 'open_holdingstatus'));
+t('error_fetching_request_order', array(), array('context' => 'open_holdingstatus'));
+t('no_holding_return_from_library', array(), array('context' => 'open_holdingstatus'));
+t('no_holdings_specified_by_library', array(), array('context' => 'open_holdingstatus'));
+t('authentication_error', array(), array('context' => 'open_holdingstatus'));
+t('agency_not_found', array(), array('context' => 'open_holdingstatus'));
+t('no_agencies_found', array(), array('context' => 'open_holdingstatus'));
+
