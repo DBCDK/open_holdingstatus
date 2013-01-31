@@ -44,5 +44,31 @@ class LocalisationRequestTestCase extends DrupalUnitTestCase {
     $message = 'LocalisationRequest with 0 localisations is parsed correctly';
     $this->assertTrue($result, $message);
   }
+}
 
+class OpenHoldingStatusWebTestCase extends DrupalWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => t('Open holdingstatus : webservice test'),
+      'description' => t('Check if webserviceRequest returns valid results'),
+      'group' => t('bibliotek.dk'),
+    );
+  }
+
+  public function setUp() {
+    parent::setUp(array('open_holdingstatus', 'open_holdingstatus_webservice_mockup'));
+    variable_set('open_holdingstatus_url', $this->getAbsoluteUrl('/open_holdingstatus_webservice/'));
+  }
+
+  public function testLocalizationAndHoldingsRequest(){
+    $pids = array('870970-basis:28542941', '870970-basis:28794932');
+    $agency_id = 'DK-870970';
+    $localizations = open_holdingstatus_localisationRequest($pids, $agency_id);
+    $this->assertTrue(isset($localizations['agencies']['715100']['holdings']['870970-basis:28657110']['localisationPid']), 'lozalizations are set');
+    $agency_ids = array('870970', '720100', '710100');
+    $holdings  = open_holdingstatus_holdingsRequest($agency_ids, $pids[0]);
+    $this->assertTrue(count($holdings) == 3, 'Errors and Responders have been merged');
+    $this->assertTrue($holdings[0]->willLend->{'$'}, 'first holdingStatus result WillLend');
+    $this->assertTrue($holdings[2]->errorMessage->{'$'} == 'item_not_found', 'third holdingStatus result has errorMessage item_not_found');
+  }
 }

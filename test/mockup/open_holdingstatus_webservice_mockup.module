@@ -38,7 +38,6 @@ function open_holdingstatus_webservice_mockup_request() {
   else {
     $data = file_get_contents('php://input');
   }
-  $path = drupal_get_path('module', 'open_holdingstatus_webservice_mockup');
 
   if( $data ) {
     $envelope = open_holdingstatus_webservice_mockup_parse_xml($data);
@@ -47,16 +46,44 @@ function open_holdingstatus_webservice_mockup_request() {
     echo 'welcome to open_holdingstatus_webservice mockup';
     return;
   }
+  if (isset($envelope->Body->localisationsRequest)){
+      $resp = open_holdingstatus_webservice_mockup_localisations_request($envelope->Body->localisationsRequest);
+   }
+  else if (isset($envelope->Body->holdingsRequest)){
+      $resp = open_holdingstatus_webservice_mockup_holdings_request($envelope->Body->holdingsRequest);
+   }
 
-  $request = $envelope->Body->localisationsRequest;
-
-  $holdings_ok = FALSE;
-
-  $holdings_ok = ( $request->agencyId == 'DK-870970' &&
-                   $request->pid[0]   == '870970-basis:28542941' &&
-                   $request->pid[1]   == '870970-basis:28794932' );
 
   drupal_add_http_header('Content-Type', 'application/json');
+  print $resp;
+
+}
+
+function open_holdingstatus_webservice_mockup_holdings_request($request){
+  $holdings_ok = FALSE;
+  $path = drupal_get_path('module', 'open_holdingstatus_webservice_mockup');
+  $agency_id = '870970';
+  $pid = '870970-basis:28542941';
+  $holdings_ok = ( $request->lookupRecord[0]->responderId == $agency_id &&
+    $request->lookupRecord[0]->pid  == $pid );
+
+  if ( $holdings_ok ) {
+    $resp = file_get_contents($path.'/holdingstatus_ok.json');
+  }
+  else {
+    $resp = file_get_contents($path.'/holdings_none.json');
+  }
+
+  return $resp;
+}
+
+function open_holdingstatus_webservice_mockup_localisations_request($request){
+  $holdings_ok = FALSE;
+  $path = drupal_get_path('module', 'open_holdingstatus_webservice_mockup');
+
+  $holdings_ok = ( $request->agencyId == 'DK-870970' &&
+    $request->pid[0]   == '870970-basis:28542941' &&
+    $request->pid[1]   == '870970-basis:28794932' );
 
   if ( $holdings_ok ) {
     $resp = file_get_contents($path.'/holdings_ok.json');
@@ -65,7 +92,7 @@ function open_holdingstatus_webservice_mockup_request() {
     $resp = file_get_contents($path.'/holdings_none.json');
   }
 
-  print $resp;
+  return $resp;
 
 }
 
