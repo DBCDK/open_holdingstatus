@@ -70,6 +70,9 @@ function _open_holdingstatus_parse_localisationsRequest($response) {
     drupal_set_message(t($error, array(), array('context' => 'open_holdingstatus')), 'error');
   }
   else {
+    if (!isset($response->localisationsResponse->localisations)){
+      return t("no localizations");
+    }
     foreach ($response->localisationsResponse->localisations as $localisation) {
       if ( isset($localisation->pid) ) {
         if ( isset($localisation->pid->{'$'}) ) {
@@ -95,7 +98,7 @@ function _open_holdingstatus_parse_localisationsRequest($response) {
       }
     }
   }
-  
+
   return $localisations;
 
 }
