@@ -129,7 +129,7 @@ function open_holdingstatus_holdingsRequest ($agency_ids, $pid, $outputType = 'j
     'outputType'     => $outputType,
     'callback'       => FALSE,
   );
-  $response = $client->do_holdingstatus($request);
+  $response = $client->do_request('holdingstatus', $request);
 
   $return = array();
 
