@@ -42,7 +42,8 @@ function open_holdingstatus_localisationRequest($pid, $agencyId = 'DK-870970') {
  */
 function _open_holdingstatus_client_localisationsRequest($pid, $agencyId, $mergePids, $outputType) {
   $client = new ting_client_class();
-  $response = $client->do_holdingstatus(
+  $response = $client->do_request(
+      'holdingstatus',
     array(
       'action'         => 'localisationsRequest',
       'authentication' => FALSE,
