@@ -21,11 +21,11 @@ class LocalisationRequestTestCase extends DrupalUnitTestCase {
   }
 
   public function setUp() {
-    $this->profile = 'minimum';
     parent::setUp(array('open_holdingstatus'));
   }
 
   function test_parse_localisationRequest() {
+    module_load_include('module', 'open_holdingstatus', 'open_holdingstatus');
     $file = file_get_contents(drupal_get_path('module', 'open_holdingstatus') . '/test/mockup/holdings_ok.json');
     $this->holdings_ok = json_decode($file);
     $result = _open_holdingstatus_parse_localisationsRequest($this->holdings_ok);
