@@ -56,8 +56,15 @@ class OpenHoldingStatusWebTestCase extends DrupalWebTestCase {
   }
 
   public function setUp() {
+    module_enable(array('open_holdingstatus_webservice_mockup'));
+    menu_rebuild();
     parent::setUp(array('open_holdingstatus', 'open_holdingstatus_webservice_mockup'));
     variable_set('open_holdingstatus_url', $this->getAbsoluteUrl('/open_holdingstatus_webservice/'));
+  }
+
+  public function tearDown(){
+    parent::tearDown();
+    module_disable(array('open_holdingstatus_webservice_mockup'));
   }
 
   public function testLocalizationAndHoldingsRequest(){
