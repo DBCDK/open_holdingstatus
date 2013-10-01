@@ -21,7 +21,7 @@ function open_holdingstatus_ting_client_webservice() {
  * @param string $agency_id
  * */
 function open_holdingstatus_localisationRequest($pid, $agencyId = 'DK-870970') {
-  $mergePids = FALSE;
+  $mergePids = TRUE;
   $outputType = 'json';
 
   $response = _open_holdingstatus_client_localisationsRequest($pid, $agencyId, $mergePids, $outputType);
