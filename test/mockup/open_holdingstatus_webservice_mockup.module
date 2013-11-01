@@ -61,23 +61,68 @@ function open_holdingstatus_webservice_mockup_request() {
 
 function open_holdingstatus_webservice_mockup_holdings_request($request){
   $holdings_ok = FALSE;
+  
   $path = drupal_get_path('module', 'open_holdingstatus_webservice_mockup');
   $agency_id = '870970';
   $pid = '870970-basis:28542941';
-  $holdings_ok = ( $request->lookupRecord[0]->responderId == $agency_id &&
-    $request->lookupRecord[0]->pid  == $pid );
+  $holdings_ok = ( $request->lookupRecord->responderId == $agency_id &&
+    $request->lookupRecord->pid  == $pid );
 
+  $agency_id = '715700';
+  $pid = '870970-basis:29317038';
+  $holdings_yellow = ( $request->lookupRecord->responderId == $agency_id &&
+    $request->lookupRecord->pid  == $pid );
+  
+  $agency_id = '710100';
+  $pid = '870970-basis:20262710';
+  $holdings_check_local = ( $request->lookupRecord->responderId == $agency_id &&
+    $request->lookupRecord->pid  == $pid );
+  
+  $agency_id = '763000';
+  $pid = '870970-basis:06343570';
+  $holdings_is_home = ( $request->lookupRecord->responderId == $agency_id &&
+    $request->lookupRecord->pid  == $pid );
+  
+  $agency_id = '710100';
+  $pid = '870970-basis:28542941';
+  $holdings_favourite = ( $request->lookupRecord->responderId == $agency_id &&
+    $request->lookupRecord->pid  == $pid );
+  
+  $agency_id = 'DK-870970';
+  $pid = '870970-basis:28542941';
+  $holdings_status = ( $request->lookupRecord->responderId == $agency_id &&
+    $request->lookupRecord->pid  == $pid );
+  
   if ( $holdings_ok ) {
-    $resp = file_get_contents($path.'/holdingstatus_ok.json');
+    $resp = file_get_contents($path.'/holdings_service_not_supported.json');
+   // $resp = file_get_contents($path.'/holdingstatus_ok.json');
   }
-  else {
+  elseif ($holdings_yellow) {
+    //$resp = file_get_contents($path.'/holdings_none.json');
+    $resp = file_get_contents($path.'/holdings_service_yellow_lamp.json');
+  }
+  elseif($holdings_check_local) {
+    $resp = file_get_contents($path.'/holdings_check_local.json');
+  }
+  elseif ($holdings_is_home) {
+    $resp = file_get_contents($path.'/holdings_is_home.json');
+  }
+  elseif ($holdings_favourite) {
+    $resp = file_get_contents($path.'/holdings_favourite.json');
+  }
+  elseif ($holdings_status) {
+    $resp = file_get_contents($path.'/holdings_status.json');
+  }
+  else{
     $resp = file_get_contents($path.'/holdings_none.json');
   }
+  
 
   return $resp;
 }
 
 function open_holdingstatus_webservice_mockup_localisations_request($request){
+  
   $holdings_ok = FALSE;
   $path = drupal_get_path('module', 'open_holdingstatus_webservice_mockup');
 
@@ -85,8 +130,14 @@ function open_holdingstatus_webservice_mockup_localisations_request($request){
     $request->pid[0]   == '870970-basis:28542941' &&
     $request->pid[1]   == '870970-basis:28794932' );
 
-  if ( $holdings_ok ) {
-    $resp = file_get_contents($path.'/holdings_ok.json');
+  $favourite_holdings = ( $request->agencyId == '710101' &&
+    $request->pid[0]   == '870970-basis:28542941' &&
+    $request->pid[1]   == '870970-basis:28794932' );
+
+  
+  if ( $holdings_ok || $favourite_holdings ) {
+    //$resp = file_get_contents($path.'/holdings_ok.json');
+    $resp = file_get_contents($path.'/localizations.json');
   }
   else {
     $resp = file_get_contents($path.'/holdings_none.json');
