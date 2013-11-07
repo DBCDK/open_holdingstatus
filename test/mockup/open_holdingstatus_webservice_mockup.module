@@ -14,6 +14,10 @@ function open_holdingstatus_webservice_mockup_menu() {
     'access callback' => TRUE
   );
 
+  $items['open_holdingstatus_webservice/disable'] = array(
+    'page callback' => 'open_holdingstatus_webservice_disable',
+    'access callback' => TRUE
+  );
   return $items;
 }
 
@@ -25,6 +29,13 @@ function open_holdingstatus_webservice_test() {
     </form>';
 }
 
+/** Disable this module
+ * 
+ */
+function open_holdingstatus_webservice_disable() {
+  module_disable(array('open_holdingstatus_webservice_mockup'));
+  exit;
+}
 
 /**
  * Faking the request and returns result.
@@ -39,112 +50,108 @@ function open_holdingstatus_webservice_mockup_request() {
     $data = file_get_contents('php://input');
   }
 
-  if( $data ) {
+  if ($data) {
     $envelope = open_holdingstatus_webservice_mockup_parse_xml($data);
   }
   else {
     echo 'welcome to open_holdingstatus_webservice mockup';
     return;
   }
-  if (isset($envelope->Body->localisationsRequest)){
-      $resp = open_holdingstatus_webservice_mockup_localisations_request($envelope->Body->localisationsRequest);
-   }
-  else if (isset($envelope->Body->holdingsRequest)){
-      $resp = open_holdingstatus_webservice_mockup_holdings_request($envelope->Body->holdingsRequest);
-   }
+  if (isset($envelope->Body->localisationsRequest)) {
+    $resp = open_holdingstatus_webservice_mockup_localisations_request($envelope->Body->localisationsRequest);
+  }
+  else if (isset($envelope->Body->holdingsRequest)) {
+    $resp = open_holdingstatus_webservice_mockup_holdings_request($envelope->Body->holdingsRequest);
+  }
 
 
   drupal_add_http_header('Content-Type', 'application/json');
   print $resp;
-
 }
 
-function open_holdingstatus_webservice_mockup_holdings_request($request){
+function open_holdingstatus_webservice_mockup_holdings_request($request) {
   $holdings_ok = FALSE;
-  
+
   $path = drupal_get_path('module', 'open_holdingstatus_webservice_mockup');
   $agency_id = '870970';
   $pid = '870970-basis:28542941';
   $holdings_ok = ( $request->lookupRecord->responderId == $agency_id &&
-    $request->lookupRecord->pid  == $pid );
+      $request->lookupRecord->pid == $pid );
 
   $agency_id = '715700';
   $pid = '870970-basis:29317038';
   $holdings_yellow = ( $request->lookupRecord->responderId == $agency_id &&
-    $request->lookupRecord->pid  == $pid );
-  
+      $request->lookupRecord->pid == $pid );
+
   $agency_id = '710100';
   $pid = '870970-basis:20262710';
   $holdings_check_local = ( $request->lookupRecord->responderId == $agency_id &&
-    $request->lookupRecord->pid  == $pid );
-  
+      $request->lookupRecord->pid == $pid );
+
   $agency_id = '763000';
   $pid = '870970-basis:06343570';
   $holdings_is_home = ( $request->lookupRecord->responderId == $agency_id &&
-    $request->lookupRecord->pid  == $pid );
-  
+      $request->lookupRecord->pid == $pid );
+
   $agency_id = '710100';
   $pid = '870970-basis:28542941';
   $holdings_favourite = ( $request->lookupRecord->responderId == $agency_id &&
-    $request->lookupRecord->pid  == $pid );
-  
+      $request->lookupRecord->pid == $pid );
+
   $agency_id = 'DK-870970';
   $pid = '870970-basis:28542941';
   $holdings_status = ( $request->lookupRecord->responderId == $agency_id &&
-    $request->lookupRecord->pid  == $pid );
-  
-  if ( $holdings_ok ) {
-    $resp = file_get_contents($path.'/holdings_service_not_supported.json');
-   // $resp = file_get_contents($path.'/holdingstatus_ok.json');
+      $request->lookupRecord->pid == $pid );
+
+  if ($holdings_ok) {
+    $resp = file_get_contents($path . '/holdings_service_not_supported.json');
+    // $resp = file_get_contents($path.'/holdingstatus_ok.json');
   }
   elseif ($holdings_yellow) {
     //$resp = file_get_contents($path.'/holdings_none.json');
-    $resp = file_get_contents($path.'/holdings_service_yellow_lamp.json');
+    $resp = file_get_contents($path . '/holdings_service_yellow_lamp.json');
   }
-  elseif($holdings_check_local) {
-    $resp = file_get_contents($path.'/holdings_check_local.json');
+  elseif ($holdings_check_local) {
+    $resp = file_get_contents($path . '/holdings_check_local.json');
   }
   elseif ($holdings_is_home) {
-    $resp = file_get_contents($path.'/holdings_is_home.json');
+    $resp = file_get_contents($path . '/holdings_is_home.json');
   }
   elseif ($holdings_favourite) {
-    $resp = file_get_contents($path.'/holdings_favourite.json');
+    $resp = file_get_contents($path . '/holdings_favourite.json');
   }
   elseif ($holdings_status) {
-    $resp = file_get_contents($path.'/holdings_status.json');
+    $resp = file_get_contents($path . '/holdings_status.json');
   }
-  else{
-    $resp = file_get_contents($path.'/holdings_none.json');
+  else {
+    $resp = file_get_contents($path . '/holdings_none.json');
   }
-  
 
   return $resp;
 }
 
-function open_holdingstatus_webservice_mockup_localisations_request($request){
-  
+function open_holdingstatus_webservice_mockup_localisations_request($request) {
   $holdings_ok = FALSE;
   $path = drupal_get_path('module', 'open_holdingstatus_webservice_mockup');
 
   $holdings_ok = ( $request->agencyId == 'DK-870970' &&
-    $request->pid[0]   == '870970-basis:28542941' &&
-    $request->pid[1]   == '870970-basis:28794932' );
+      $request->pid[0] == '870970-basis:28542941' &&
+      $request->pid[1] == '870970-basis:28794932' );
 
   $favourite_holdings = ( $request->agencyId == '710101' &&
-    $request->pid[0]   == '870970-basis:28542941' &&
-    $request->pid[1]   == '870970-basis:28794932' );
+      $request->pid[0] == '870970-basis:28542941' &&
+      $request->pid[1] == '870970-basis:28794932' );
 
-  
-  if ( $holdings_ok || $favourite_holdings ) {
+
+  if ($holdings_ok || $favourite_holdings) {
     //$resp = file_get_contents($path.'/holdings_ok.json');
-    $resp = file_get_contents($path.'/localizations.json');
+    $resp = file_get_contents($path . '/localizations.json');
   }
   else {
-    $resp = file_get_contents($path.'/holdings_none.json');
+    $resp = file_get_contents($path . '/holdings_none.json');
   }
 
   return $resp;
-
 }
 
 /**
@@ -152,7 +159,7 @@ function open_holdingstatus_webservice_mockup_localisations_request($request){
  * @param type request from ting-client
  * @return \SimpleXMLElement
  */
-function open_holdingstatus_webservice_mockup_parse_xml($soap){
+function open_holdingstatus_webservice_mockup_parse_xml($soap) {
   $pattern = "/:?SOAP-ENV:?/";
   $replace = '';
   $xml = preg_replace($pattern, $replace, $soap);
