@@ -131,8 +131,16 @@ function open_holdingstatus_holdingsRequest ($agency_ids, $pid, $outputType = 'j
   );
   $response = $client->do_request('holdingstatus', $request);
 
-  $return = array();
+  return open_holdingstatus_parse_request_response($response);
+}
 
+/**
+ * Parse result from openHolding webservicen
+ * @param $response
+ * @return array
+ */
+function open_holdingstatus_parse_request_response($response){
+  $return = array();
   // correct responses and error responses are divided into two methods. But we want to combine these
   if (isset($response->holdingsResponse->responder))
     $return = array_merge($return, $response->holdingsResponse->responder);
