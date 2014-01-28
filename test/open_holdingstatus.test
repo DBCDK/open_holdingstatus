@@ -27,10 +27,10 @@ class LocalisationRequestTestCase extends DrupalUnitTestCase {
   function test_parse_localisationRequest() {
     module_load_include('module', 'open_holdingstatus', 'open_holdingstatus');
     $file = file_get_contents(drupal_get_path('module', 'open_holdingstatus') . '/test/mockup/holdings_ok.json');
-    
+
     $this->holdings_ok = json_decode($file);
     $result = _open_holdingstatus_parse_localisationsRequest($this->holdings_ok);
-    
+
     $this->holdings_ok_result = file_get_contents(drupal_get_path('module', 'open_holdingstatus') . '/test/mockup/holdings_ok.array.php');
     $result = ( serialize($result) == $this->holdings_ok_result );
     $message = 'LocalisationRequest with 16 localisations is parsed correctly';
@@ -66,9 +66,15 @@ class OpenHoldingStatusWebTestCase extends DrupalWebTestCase {
 
   public function testLocalizationAndHoldingsRequest(){
     $pids = array('870970-basis:28542941', '870970-basis:28794932');
+    $expected_localisation_pid = '870970-basis:28794932';
     $agency_id = 'DK-870970';
     $localizations = open_holdingstatus_localisationRequest($pids, $agency_id);
-    $this->assertTrue(isset($localizations['agencies']['715100']['holdings']['870970-basis:28794932']['localisationPid']), 'lozalizations are set');
+    $this->assertTrue(
+      !empty($localizations['agencies']['715100']['holdings']['870970-basis:28794932']['localisationPid']) &&
+      $localizations['agencies']['715100']['holdings']['870970-basis:28794932']['localisationPid'] == $expected_localisation_pid,
+      'lozalizations are set'
+    );
+    $this->verbose(print_r($localizations['agencies']['715100']['holdings']['870970-basis:28794932'],1));
     $agency_ids = array('DK-870970', 'DK-720100', 'DK-710100');
     $holdings  = open_holdingstatus_holdingsRequest($agency_ids, $pids[0]);
     $this->assertTrue(count($holdings) == 3, 'Errors and Responders have been merged');
