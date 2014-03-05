@@ -146,25 +146,6 @@ class openHoldingsStatus extends TingClientRequest Implements ITingClientRequest
     return $this->outputType;
   }
 
-/*
-  public function getRequest() {
-    $service_url = variable_get('open_holdingstatus_url');
-    if (function_exists('ting_client_validate_xsd')) {
-      $params = ting_client_validate_xsd('openholdingstatus.xsd', $this->getAction());
-dpm($params);
-    }
-    else
-      throw new Exception("Validation is needed for open_holdingstatus");
-    foreach ($params as $parameter) {
-      $getter = 'get' . ucfirst($parameter);
-      if ($value = $this->$getter()) {
-        $this->setParameter($parameter, $value);
-      }
-    }
-    return $this;
-  }
-*/
-
   // empty;
   public function processResponse(stdClass $result) {
     return $result;
