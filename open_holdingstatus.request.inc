@@ -5,7 +5,7 @@
  * OpenHoldingsStatus : open_holdingstatus class
  **/
 
-class open_holdingstatus extends TingClientRequest Implements ITingClientRequestCache {
+class openHoldingsStatus extends TingClientRequest Implements ITingClientRequestCache {
 
   protected $agencyId;
   protected $pid;
@@ -146,10 +146,12 @@ class open_holdingstatus extends TingClientRequest Implements ITingClientRequest
     return $this->outputType;
   }
 
+/*
   public function getRequest() {
     $service_url = variable_get('open_holdingstatus_url');
     if (function_exists('ting_client_validate_xsd')) {
       $params = ting_client_validate_xsd('openholdingstatus.xsd', $this->getAction());
+dpm($params);
     }
     else
       throw new Exception("Validation is needed for open_holdingstatus");
@@ -161,6 +163,7 @@ class open_holdingstatus extends TingClientRequest Implements ITingClientRequest
     }
     return $this;
   }
+*/
 
   // empty;
   public function processResponse(stdClass $result) {
