@@ -62,6 +62,9 @@ class OpenHoldingStatusWebTestCase extends DrupalWebTestCase {
     menu_rebuild();
     parent::setUp(array('open_holdingstatus', 'open_holdingstatus_webservice_mockup'));
     variable_set('open_holdingstatus_url', $this->getAbsoluteUrl('/open_holdingstatus_webservice/'));
+
+    $path = drupal_get_path('module','open_holdingstatus_webservice');
+  variable_set('open_holdingstatus_xsd_url',$this->getAbsoluteUrl('/open_holdingstatus_webservice/xsd'));
   }
 
   public function testLocalizationAndHoldingsRequest(){
@@ -69,12 +72,13 @@ class OpenHoldingStatusWebTestCase extends DrupalWebTestCase {
     $expected_localisation_pid = '870970-basis:28794932';
     $agency_id = 'DK-870970';
     $localizations = open_holdingstatus_localisationRequest($pids, $agency_id);
+
     $this->assertTrue(
       !empty($localizations['agencies']['715100']['holdings']['870970-basis:28794932']['localisationPid']) &&
       $localizations['agencies']['715100']['holdings']['870970-basis:28794932']['localisationPid'] == $expected_localisation_pid,
       'lozalizations are set'
     );
-    $this->verbose(print_r($localizations['agencies']['715100']['holdings']['870970-basis:28794932'],1));
+   // $this->verbose(print_r($localizations['agencies']['715100']['holdings']['870970-basis:28794932'],1));
     $agency_ids = array('DK-870970', 'DK-720100', 'DK-710100');
     $holdings  = open_holdingstatus_holdingsRequest($agency_ids, $pids[0]);
     $this->assertTrue(count($holdings) == 3, 'Errors and Responders have been merged');
