@@ -18,7 +18,7 @@ function open_holdingstatus_webservice_mockup_menu() {
     'page callback' => 'open_holdingstatus_webservice_disable',
     'access callback' => TRUE
   );
-  $items['open_holdingstatus_webservice/xsd'] = array(
+  $items['open_holdingstatus_webservice/openholdingstatus.xsd'] = array(
     'page callback' => 'open_holdingstatus_get_xsd',
     'access callback' => TRUE
   );
