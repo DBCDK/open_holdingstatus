@@ -62,9 +62,9 @@ class OpenHoldingStatusWebTestCase extends DrupalWebTestCase {
     menu_rebuild();
     parent::setUp(array('open_holdingstatus', 'open_holdingstatus_webservice_mockup'));
     variable_set('open_holdingstatus_url', $this->getAbsoluteUrl('/open_holdingstatus_webservice/'));
+    variable_set('open_holdingstatus_xsd_url', $this->getAbsoluteUrl('/open_holdingstatus_webservice/openholdingstatus.xsd'));
 
     $path = drupal_get_path('module','open_holdingstatus_webservice');
-  variable_set('open_holdingstatus_xsd_url',$this->getAbsoluteUrl('/open_holdingstatus_webservice/xsd'));
   }
 
   public function testLocalizationAndHoldingsRequest(){
