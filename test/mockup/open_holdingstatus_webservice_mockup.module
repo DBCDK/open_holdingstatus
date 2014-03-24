@@ -18,8 +18,16 @@ function open_holdingstatus_webservice_mockup_menu() {
     'page callback' => 'open_holdingstatus_webservice_disable',
     'access callback' => TRUE
   );
+  $items['open_holdingstatus_webservice/openholdingstatus.xsd'] = array(
+    'page callback' => 'open_holdingstatus_get_xsd',
+    'access callback' => TRUE
+  );
+
   return $items;
 }
+
+
+
 
 function open_holdingstatus_webservice_test() {
   return '
@@ -34,6 +42,13 @@ function open_holdingstatus_webservice_test() {
  */
 function open_holdingstatus_webservice_disable() {
   module_disable(array('open_holdingstatus_webservice_mockup'));
+  exit;
+}
+
+function open_holdingstatus_get_xsd(){
+  $path = drupal_get_path('module', 'open_holdingstatus_webservice_mockup');
+  $file = file_get_contents($path.'/openholdingstatus.xsd');
+  print $file;
   exit;
 }
 
@@ -63,7 +78,6 @@ function open_holdingstatus_webservice_mockup_request() {
   else if (isset($envelope->Body->holdingsRequest)) {
     $resp = open_holdingstatus_webservice_mockup_holdings_request($envelope->Body->holdingsRequest);
   }
-
 
   drupal_add_http_header('Content-Type', 'application/json');
   print $resp;
