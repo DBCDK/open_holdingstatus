@@ -164,7 +164,7 @@ function open_holdingstatus_form_ting_client_admin_webservices_settings_alter(&$
   $form['holdingstatus']['#title'] = t('OpenHoldingStatus settings');
   $form['holdingstatus']['#description'] = t('Client for OpenHoldingStatus, a service that can be used for checking and presenting the availability of materials held by Danish libraries.');
   $form['holdingstatus']['#collapsible'] = TRUE;
-  $form['holdingstatus']['#collapsed'] = FALSE;
+  $form['holdingstatus']['#collapsed'] = TRUE;
   $form['holdingstatus']['#tree'] = FALSE;
 
   $form['holdingstatus']['open_holdingstatus_url'] = array(
