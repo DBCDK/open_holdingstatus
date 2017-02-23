@@ -105,7 +105,6 @@ function _open_holdingstatus_parse_localisationsRequest($response) {
 
 }
 
-
 /**
  * Do holdings_request
  * @param array $agency_ids
@@ -113,7 +112,7 @@ function _open_holdingstatus_parse_localisationsRequest($response) {
  * @param string $outputType
  * @return array
  */
-function open_holdingstatus_holdingsRequest ($agency_ids, $pid, $outputType = 'json'){
+function open_holdingstatus_holdingsRequest ($agency_ids, $pid, $outputType = 'json') {
   $client = new ting_client_class();
   $lookupRecord = array();
 
@@ -126,7 +125,7 @@ function open_holdingstatus_holdingsRequest ($agency_ids, $pid, $outputType = 'j
   $request = array(
     'action'         => 'holdingsRequest',
     'authentication' => FALSE,
-    'lookupRecord'       => $lookupRecord,
+    'lookupRecord'   => $lookupRecord,
     'outputType'     => $outputType,
     'callback'       => FALSE,
   );
@@ -151,6 +150,53 @@ function open_holdingstatus_parse_request_response($response){
 
   return $return;
 }
+
+  /**
+   * Do detailed_holdings_request
+   * @param array $agency_ids
+   * @param string $pid
+   * @param string $outputType
+   * @return array
+   */
+  function open_holdingstatus_detailedHoldingsRequest ($agency_ids, $pid, $outputType = 'json') {
+    $client = new ting_client_class();
+    $lookupRecord = array();
+
+    foreach($agency_ids as $agency_id){
+      $lookupRecord[] = array(
+        'responderId' => $agency_id,
+        'pid' => $pid,
+      );
+    }
+    $request = array(
+      'action'         => 'detailedHoldingsRequest',
+      'authentication' => FALSE,
+      'lookupRecord'   => $lookupRecord,
+      'outputType'     => $outputType,
+      'callback'       => FALSE,
+    );
+    $response = $client->do_request('holdingstatus', $request);
+
+    return open_holdingstatus_parse_detailed_request_response($response);
+  }
+
+  /**
+   * Parse result from openHolding detailed webservicen
+   * @param $response
+   * @return array
+   */
+  function open_holdingstatus_parse_detailed_request_response($response){
+
+    $return = array();
+    // correct responses and error responses are divided into two methods. But we want to combine these
+    if (isset($response->detailedHoldingsResponse->responderDetailed))
+      $return = array_merge($return, $response->detailedHoldingsResponse->responderDetailed);
+    if (isset($response->detailedHoldingsResponse->error)){
+      $return = array_merge($return, $response->detailedHoldingsResponse->error);
+    }
+
+    return $return;
+  }
 
 /**
  * Implements hook_form_FORM_ID_alter (ting_client_admin_webservices_settings)
