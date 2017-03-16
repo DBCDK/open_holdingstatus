@@ -65,6 +65,11 @@ function _open_holdingstatus_client_localisationsRequest($pid, $agencyId, $merge
  * @return array
  */
 function _open_holdingstatus_parse_localisationsRequest($response) {
+  // ting_client returns false if something goes wrong
+  if($response === FALSE){
+    return FALSE;
+  }
+
   $localisations = array();
 
   if ( isset($response->error) ) {
