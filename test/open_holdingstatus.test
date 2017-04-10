@@ -4,7 +4,7 @@
  * @file
  * Test case for OpenHldingsStatus localisation & holdings.
  */
-
+/*
 class LocalisationRequestTestCase extends DrupalUnitTestCase {
 
   private  $holdings_ok;
@@ -48,6 +48,7 @@ class LocalisationRequestTestCase extends DrupalUnitTestCase {
   }
 }
 
+
 class OpenHoldingStatusWebTestCase extends DrupalWebTestCase {
   public static function getInfo() {
     return array(
@@ -86,3 +87,4 @@ class OpenHoldingStatusWebTestCase extends DrupalWebTestCase {
     $this->assertTrue($holdings[2]->errorMessage->{'$'} == 'item_not_found', 'third holdingStatus result has errorMessage item_not_found');
   }
 }
+*/
