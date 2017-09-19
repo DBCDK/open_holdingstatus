@@ -71,7 +71,7 @@ class openHoldingsStatus extends TingClientRequest Implements ITingClientRequest
    * @return string; name of cachebin
    **/
   public function cacheBin() {
-    return 'cache_borchk_webservice';
+    return 'cache_holdingstatus_webservice';
   }
 
   public function getAuthentication() {
