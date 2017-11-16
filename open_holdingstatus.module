@@ -53,7 +53,7 @@ function _open_holdingstatus_client_localisationsRequest($pid, $agencyId, $merge
     'callback'       => FALSE,
   );
 
-  if (module_exists(array('ting_client'))) {
+  if (module_exists('ting_client')) {
   $response = ting_client_do_request('holdingstatus', $params);
   }
   else {
@@ -143,7 +143,7 @@ function open_holdingstatus_holdingsRequest ($agency_ids, $pid, $outputType = 'j
     'callback'       => FALSE,
   );
 
-  if (module_exists(array('ting_client'))) {
+  if (module_exists('ting_client')) {
     $response = ting_client_do_request('holdingstatus', $request);
   }
   else {
