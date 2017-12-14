@@ -42,18 +42,25 @@ function open_holdingstatus_localisationRequest($pid, $agencyId = 'DK-870970') {
  * @return array
  */
 function _open_holdingstatus_client_localisationsRequest($pid, $agencyId, $mergePids, $outputType) {
+
+  $params = array(
+    'action'         => 'localisationsRequest',
+    'authentication' => FALSE,
+    'agencyId'       => $agencyId,
+    'pid'            => $pid,
+    'mergePids'      => $mergePids,
+    'outputType'     => $outputType,
+    'callback'       => FALSE,
+  );
+
+  if (!class_exists('TingClient') && module_exists('libraries')) {
+    libraries_load('TingClient');
+  }
+
   $client = new ting_client_class();
   $response = $client->do_request(
     'holdingstatus',
-    array(
-      'action'         => 'localisationsRequest',
-      'authentication' => FALSE,
-      'agencyId'       => $agencyId,
-      'pid'            => $pid,
-      'mergePids'      => $mergePids,
-      'outputType'     => $outputType,
-      'callback'       => FALSE,
-    )
+    $params
   );
   return $response;
 }
@@ -118,7 +125,7 @@ function _open_holdingstatus_parse_localisationsRequest($response) {
  * @return array
  */
 function open_holdingstatus_holdingsRequest ($agency_ids, $pid, $outputType = 'json') {
-  $client = new ting_client_class();
+
   $lookupRecord = array();
 
   foreach($agency_ids as $agency_id){
@@ -134,8 +141,12 @@ function open_holdingstatus_holdingsRequest ($agency_ids, $pid, $outputType = 'j
     'outputType'     => $outputType,
     'callback'       => FALSE,
   );
-  $response = $client->do_request('holdingstatus', $request);
 
+  if (!class_exists('TingClient') && module_exists('libraries')) {
+    libraries_load('TingClient');
+  }
+  $client = new ting_client_class();
+  $response = $client->do_request('holdingstatus', $request);
   return open_holdingstatus_parse_request_response($response);
 }
 
@@ -164,7 +175,7 @@ function open_holdingstatus_parse_request_response($response){
    * @return array
    */
   function open_holdingstatus_detailedHoldingsRequest ($agency_ids, $pid, $outputType = 'json') {
-    $client = new ting_client_class();
+
     $lookupRecord = array();
 
     foreach($agency_ids as $agency_id){
@@ -180,8 +191,12 @@ function open_holdingstatus_parse_request_response($response){
       'outputType'     => $outputType,
       'callback'       => FALSE,
     );
-    $response = $client->do_request('holdingstatus', $request);
 
+    if (!class_exists('TingClient') && module_exists('libraries')) {
+      libraries_load('TingClient');
+    }
+    $client = new ting_client_class();
+    $response = $client->do_request('holdingstatus', $request);
     return open_holdingstatus_parse_detailed_request_response($response);
   }
 
