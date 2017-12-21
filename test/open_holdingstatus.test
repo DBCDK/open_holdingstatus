@@ -20,10 +20,6 @@ class LocalisationRequestTestCase extends DrupalUnitTestCase {
     );
   }
 
-  public function setUp() {
-    parent::setUp(array('open_holdingstatus'));
-  }
-
   function test_parse_localisationRequest() {
     module_load_include('module', 'open_holdingstatus', 'open_holdingstatus');
     $file = file_get_contents(drupal_get_path('module', 'open_holdingstatus') . '/test/mockup/holdings_ok.json');
