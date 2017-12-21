@@ -4,7 +4,7 @@
  * @file
  * Test case for OpenHldingsStatus localisation & holdings.
  */
-/*
+
 class LocalisationRequestTestCase extends DrupalUnitTestCase {
 
   private  $holdings_ok;
@@ -59,13 +59,9 @@ class OpenHoldingStatusWebTestCase extends DrupalWebTestCase {
   }
 
   public function setUp() {
-    module_enable(array('open_holdingstatus_webservice_mockup'));
-    menu_rebuild();
     parent::setUp(array('open_holdingstatus', 'open_holdingstatus_webservice_mockup'));
     variable_set('open_holdingstatus_url', $this->getAbsoluteUrl('/open_holdingstatus_webservice/'));
     variable_set('open_holdingstatus_xsd_url', $this->getAbsoluteUrl('/open_holdingstatus_webservice/openholdingstatus.xsd'));
-
-    $path = drupal_get_path('module','open_holdingstatus_webservice');
   }
 
   public function testLocalizationAndHoldingsRequest(){
@@ -87,4 +83,3 @@ class OpenHoldingStatusWebTestCase extends DrupalWebTestCase {
     $this->assertTrue($holdings[2]->errorMessage->{'$'} == 'item_not_found', 'third holdingStatus result has errorMessage item_not_found');
   }
 }
-*/
