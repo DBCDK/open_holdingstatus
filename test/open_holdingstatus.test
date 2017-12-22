@@ -61,6 +61,9 @@ class OpenHoldingStatusWebTestCase extends DrupalWebTestCase {
   }
 
   public function testLocalizationAndHoldingsRequest(){
+
+    $this->assertTrue(module_exists('open_holdingstatus_webservice_mockup'));
+
     $pids = array('870970-basis:28542941', '870970-basis:28794932');
     $expected_localisation_pid = '870970-basis:28794932';
     $agency_id = 'DK-870970';
@@ -74,6 +77,9 @@ class OpenHoldingStatusWebTestCase extends DrupalWebTestCase {
    // $this->verbose(print_r($localizations['agencies']['715100']['holdings']['870970-basis:28794932'],1));
     $agency_ids = array('DK-870970', 'DK-720100', 'DK-710100');
     $holdings  = open_holdingstatus_holdingsRequest($agency_ids, $pids[0]);
+
+    debug($holdings);
+
     $this->assertTrue(count($holdings) == 3, 'Errors and Responders have been merged');
     $this->assertTrue($holdings[0]->willLend->{'$'}, 'first holdingStatus result WillLend');
     $this->assertTrue($holdings[2]->errorMessage->{'$'} == 'item_not_found', 'third holdingStatus result has errorMessage item_not_found');
