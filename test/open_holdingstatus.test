@@ -46,6 +46,18 @@ class LocalisationRequestTestCase extends DrupalUnitTestCase {
 
 
 class OpenHoldingStatusWebTestCase extends DrupalWebTestCase {
+
+  public function __construct($test_id = NULL) {
+    parent::__construct($test_id);
+    module_enable(array('open_holdingstatus_webservice_mockup'));
+    menu_rebuild();
+  }
+
+  public function __destruct() {
+    module_disable(array('open_holdingstatus_webservice_mockup'));
+    menu_rebuild();
+  }
+
   public static function getInfo() {
     return array(
       'name' => t('Open holdingstatus : webservice test'),
@@ -56,13 +68,14 @@ class OpenHoldingStatusWebTestCase extends DrupalWebTestCase {
 
   public function setUp() {
     parent::setUp(array('open_holdingstatus', 'open_holdingstatus_webservice_mockup'));
+    //parent::setUp(array('open_holdingstatus'));
     variable_set('open_holdingstatus_url', $this->getAbsoluteUrl('/open_holdingstatus_webservice/'));
     variable_set('open_holdingstatus_xsd_url', $this->getAbsoluteUrl('/open_holdingstatus_webservice/openholdingstatus.xsd'));
   }
 
-  public function testLocalizationAndHoldingsRequest(){
 
-    $this->assertTrue(module_exists('open_holdingstatus_webservice_mockup'));
+  public function testLocalizationAndHoldingsRequest(){
+    $this->assertTrue(module_exists('open_holdingstatus_webservice_mockup'), 'Webservice mockup is enabled');
 
     $pids = array('870970-basis:28542941', '870970-basis:28794932');
     $expected_localisation_pid = '870970-basis:28794932';
@@ -77,8 +90,6 @@ class OpenHoldingStatusWebTestCase extends DrupalWebTestCase {
    // $this->verbose(print_r($localizations['agencies']['715100']['holdings']['870970-basis:28794932'],1));
     $agency_ids = array('DK-870970', 'DK-720100', 'DK-710100');
     $holdings  = open_holdingstatus_holdingsRequest($agency_ids, $pids[0]);
-
-    debug($holdings);
 
     $this->assertTrue(count($holdings) == 3, 'Errors and Responders have been merged');
     $this->assertTrue($holdings[0]->willLend->{'$'}, 'first holdingStatus result WillLend');
