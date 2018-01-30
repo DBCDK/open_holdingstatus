@@ -47,7 +47,7 @@ function _open_holdingstatus_client_localisationsRequest($pid, $agencyId, $merge
 
   $client = new ting_client_class();
   $response = $client->do_request(
-    'holdingstatus',
+    'openHoldingStatus',
     $params
   );
   return $response;
@@ -134,7 +134,7 @@ function open_holdingstatus_holdingsRequest ($agency_ids, $pid, $outputType = 'j
     libraries_load('TingClient');
   }
   $client = new ting_client_class();
-  $response = $client->do_request('holdingstatus', $request);
+  $response = $client->do_request('openHoldingStatus', $request);
   return open_holdingstatus_parse_request_response($response);
 }
 
@@ -184,7 +184,7 @@ function open_holdingstatus_parse_request_response($response){
       libraries_load('TingClient');
     }
     $client = new ting_client_class();
-    $response = $client->do_request('holdingstatus', $request);
+    $response = $client->do_request('openHoldingStatus', $request);
     return open_holdingstatus_parse_detailed_request_response($response);
   }
 
