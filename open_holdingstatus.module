@@ -255,7 +255,7 @@ function open_holdingstatus_form_ting_client_admin_webservices_settings_alter(&$
  * @return Array
  */
 function open_holdingstatus_how_r_u() {
-  return array('Holdingstatus' => variable_get('open_holdingstatus_url'));
+  return array('Holdingstatus' => variable_get('openHoldingStatus_url'));
 }
 
 
