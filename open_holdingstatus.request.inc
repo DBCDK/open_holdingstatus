@@ -5,7 +5,7 @@
  * OpenHoldingsStatus : open_holdingstatus class
  **/
 
-class openHoldingsStatus extends TingClientRequest Implements ITingClientRequestCache {
+class openHoldingStatus extends TingClientRequest Implements ITingClientRequestCache {
 
   protected $agencyId;
   protected $pid;

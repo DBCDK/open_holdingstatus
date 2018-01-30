@@ -211,7 +211,7 @@ function open_holdingstatus_parse_request_response($response){
  * */
 function open_holdingstatus_ting_client_webservice() {
   $ret = array();
-  $ret['openHoldingStatus']['class']   = 'openHoldingsStatus';
+  $ret['openHoldingStatus']['class']   = 'openHoldingStatus';
   $ret['openHoldingStatus']['url']     = 'openHoldingStatus_url';
   $ret['openHoldingStatus']['xsd_url'] = 'openHoldingStatus_xsd_url';
   return $ret;
