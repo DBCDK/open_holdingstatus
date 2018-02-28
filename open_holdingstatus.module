@@ -4,7 +4,8 @@
  * Webservice @ http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenHoldingStatus/trunk/server.php
  * */
 
-
+define('DEFAULT_AGENCYID', 'DK-190101');
+ 
 /**
  * Implements hook_ting_client_webservice (@see ting_client.module)
  * */
@@ -21,7 +22,10 @@ function open_holdingstatus_ting_client_webservice() {
  * @param array $pid
  * @param string $agency_id
  * */
-function open_holdingstatus_localisationRequest($pid, $agencyId = 'DK-870970') {
+function open_holdingstatus_localisationRequest($pid, $agencyId = FALSE) {
+  if (!$agencyId) {
+    $agencyId = variable_get('open_holdingstatus_agency_id', DEFAULT_AGENCYID);
+  }
   $mergePids = FALSE;
   $outputType = 'json';
 
@@ -85,7 +89,7 @@ function _open_holdingstatus_parse_localisationsRequest($response) {
   }
   else {
     if (!isset($response->localisationsResponse->localisations)){
-      return t("no localizations");
+      return t("no localizations", array(), array('context' => 'open_holdingstatus'));
     }
     foreach ($response->localisationsResponse->localisations as $localisation) {
       if ( isset($localisation->pid) ) {
@@ -227,26 +231,39 @@ function open_holdingstatus_form_ting_client_admin_webservices_settings_alter(&$
 
   // don't start by defining the fieldset as an array. This way other modules can extend the fieldset.
   $form['holdingstatus']['#type'] = 'fieldset';
-  $form['holdingstatus']['#title'] = t('OpenHoldingStatus settings');
-  $form['holdingstatus']['#description'] = t('Client for OpenHoldingStatus, a service that can be used for checking and presenting the availability of materials held by Danish libraries.');
+  $form['holdingstatus']['#title'] = t('OpenHoldingStatus settings', array(), array('context' => 'open_holdingstatus'));
+  $form['holdingstatus']['#description'] = t('Client for OpenHoldingStatus, a service that can be used for checking and presenting the availability of materials held by Danish libraries.', array(), array('context' => 'open_holdingstatus'));
   $form['holdingstatus']['#collapsible'] = TRUE;
   $form['holdingstatus']['#collapsed'] = TRUE;
   $form['holdingstatus']['#tree'] = FALSE;
 
   $form['holdingstatus']['open_holdingstatus_url'] = array(
     '#type' => 'textfield',
-    '#title' => t('OpenHoldingStatus URL'),
-    '#description' => t('URL to OpenHoldingStatus e.g.: http://openholdingstatus.addi.dk/1.0/'),
+    '#title' => t('OpenHoldingStatus URL', array(), array('context' => 'open_holdingstatus')),
+    '#description' => t('URL to OpenHoldingStatus e.g.: http://openholdingstatus.addi.dk/x.x/', array(), array('context' => 'open_holdingstatus')),
     '#required' => TRUE,
     '#default_value' => variable_get('open_holdingstatus_url', FALSE),
   );
 
   $form['holdingstatus']['open_holdingstatus_xsd_url'] = array(
     '#type' => 'textfield',
-    '#title' => t('OpenHoldingStatus XSD URL'),
-    '#description' => t('URL to OpenHoldingStatus XSD e.g.: http://openholdingstatus.addi.dk/x.x/openholdingstatus.xsd'),
+    '#title' => t('OpenHoldingStatus XSD URL', array(), array('context' => 'open_holdingstatus')),
+    '#description' => t('URL to OpenHoldingStatus XSD e.g.: http://openholdingstatus.addi.dk/x.x/openholdingstatus.xsd', array(), array('context' => 'open_holdingstatus')),
     '#required' => FALSE,
     '#default_value' => variable_get('open_holdingstatus_xsd_url', FALSE),
+  );
+
+  $form['holdingstatus']['open_holdingstatus_agency_id'] = array(
+    '#type' => 'textfield',
+    '#title' => t('OpenHoldingStatus agencyId', array(), array('context' => 'open_holdingstatus')),
+    '#description' => t(
+      'Default agencyId for localisationsRequest (%agency_id). <br/>If user is logged in and has a favorite library, this is used. 
+      Otherwise the default library id is used. Format: "DK-xxxxxx"',
+      array('%agency_id' => variable_get('open_holdingstatus_agency_id', DEFAULT_AGENCYID)), 
+      array('context' => 'open_holdingstatus')
+    ),
+    '#required' => FALSE,
+    '#default_value' => variable_get('open_holdingstatus_agency_id', DEFAULT_AGENCYID),
   );
 
 }
@@ -259,20 +276,4 @@ function open_holdingstatus_how_r_u() {
   return array('Holdingstatus' => variable_get('open_holdingstatus_url'));
 }
 
-
-/**
- * Error codes
- */
-t('service_unavailable', array(), array('context' => 'open_holdingstatus'));
-t('error_in_request', array(), array('context' => 'open_holdingstatus'));
-t('service_not_supported_by_library', array(), array('context' => 'open_holdingstatus'));
-t('cannot_parse_library_answer', array(), array('context' => 'open_holdingstatus'));
-t('item_not_found', array(), array('context' => 'open_holdingstatus'));
-t('error_searching_library', array(), array('context' => 'open_holdingstatus'));
-t('error_fetching_request_order', array(), array('context' => 'open_holdingstatus'));
-t('no_holding_return_from_library', array(), array('context' => 'open_holdingstatus'));
-t('no_holdings_specified_by_library', array(), array('context' => 'open_holdingstatus'));
-t('authentication_error', array(), array('context' => 'open_holdingstatus'));
-t('agency_not_found', array(), array('context' => 'open_holdingstatus'));
-t('no_agencies_found', array(), array('context' => 'open_holdingstatus'));
 
