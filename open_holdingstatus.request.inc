@@ -146,6 +146,14 @@ class openHoldingsStatus extends TingClientRequest Implements ITingClientRequest
     return $this->outputType;
   }
 
+  public function getRole() {
+    return $this->callback;
+  }
+
+  public function setRole($callback) {
+    $this->callback = $callback;
+  }
+
   // empty;
   public function processResponse(stdClass $result) {
     return $result;
