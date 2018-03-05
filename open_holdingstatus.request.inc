@@ -2,7 +2,7 @@
 
 /**
  * @file
- * OpenHoldingsStatus : open_holdingstatus class
+ * OpenHoldingStatus : open_holdingstatus class
  **/
 
 class openHoldingStatus extends TingClientRequest Implements ITingClientRequestCache {

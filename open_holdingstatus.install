@@ -13,3 +13,19 @@ function open_holdingstatus_schema() {
   return $schema;
 }
 
+function open_holdingstatus_update_7001() {
+
+  variable_set(
+    'openHoldingStatus_url',
+    'http://openholdingstatus.addi.dk/3.0/'
+  );
+
+  variable_set(
+    'openHoldingStatus_xsd_url',
+    'http://openholdingstatus.addi.dk/3.0/openholdingstatus.xsd'
+  );
+
+  variable_del('open_holdingstatus_url');
+  variable_del('open_holdingstatus_xsd_url');
+
+}
