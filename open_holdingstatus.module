@@ -4,7 +4,7 @@
  * Webservice @ http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenHoldingStatus/trunk/server.php
  * */
 
-define('DEFAULT_AGENCYID', 'DK-190101');
+define('DEFAULT_AGENCYID', 'DK-870970');
  
 /**
  * Implements hook_ting_client_webservice (@see ting_client.module)
