@@ -242,7 +242,7 @@ function open_holdingstatus_form_ting_client_admin_webservices_settings_alter(&$
   $form['openHoldingStatus']['openHoldingStatus_url'] = array(
     '#type' => 'textfield',
     '#title' => t('openHoldingStatus URL'),
-    '#description' => t('URL to OpenHoldingStatus e.g.: http://openholdingstatus.addi.dk/1.0/'),
+    '#description' => t('URL to OpenHoldingStatus e.g.: http://openholdingstatus.addi.dk/x.x/'),
     '#required' => TRUE,
     '#default_value' => variable_get('openHoldingStatus_url', FALSE),
   );

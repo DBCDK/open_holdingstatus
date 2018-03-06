@@ -14,6 +14,7 @@ class openHoldingStatus extends TingClientRequest Implements ITingClientRequestC
   protected $cacheKey;
   protected $outputType;
   protected $action;
+  protected $role;
 
 
   /* Implementation of ITingClientRequestCache */
@@ -147,11 +148,11 @@ class openHoldingStatus extends TingClientRequest Implements ITingClientRequestC
   }
 
   public function getRole() {
-    return $this->callback;
+    return $this->role;
   }
 
-  public function setRole($callback) {
-    $this->callback = $callback;
+  public function setRole($role) {
+    $this->role = $role;
   }
 
   // empty;
