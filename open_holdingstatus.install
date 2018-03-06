@@ -33,3 +33,16 @@ function open_holdingstatus_install() {
   t('agency_not_found', array(), array('context' => 'open_holdingstatus'));
   t('no_agencies_found', array(), array('context' => 'open_holdingstatus'));
 }
+
+function open_holdingstatus_update_7001() {
+
+  $url = variable_get('open_holdingstatus_url', FALSE);
+  $xsd = variable_get('open_holdingstatus_xsd_url', FALSE);
+  if ($url && $xsd) {
+    variable_set('openHoldingStatus_url', $url);
+    variable_set('openHoldingStatus_xsd_url', $xsd);
+    variable_del('open_holdingstatus_url');
+    variable_del('open_holdingstatus_xsd_url');
+  }
+
+}
