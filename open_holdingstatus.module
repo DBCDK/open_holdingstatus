@@ -26,10 +26,11 @@ function open_holdingstatus_localisationRequest($pid, $agencyId = FALSE) {
   if (!$agencyId) {
     $agencyId = variable_get('openHoldingStatus_agency_id', DEFAULT_AGENCYID);
   }
+  $role = variable_get('openHoldingStatus_role', NULL);
   $mergePids = FALSE;
   $outputType = 'json';
 
-  $response = _open_holdingstatus_client_localisationsRequest($pid, $agencyId, $mergePids, $outputType);
+  $response = _open_holdingstatus_client_localisationsRequest($pid, $agencyId, $mergePids, $outputType, $role);
 
   $localisations = _open_holdingstatus_parse_localisationsRequest($response);
 
@@ -45,12 +46,13 @@ function open_holdingstatus_localisationRequest($pid, $agencyId = FALSE) {
  * @param string $outputType
  * @return array
  */
-function _open_holdingstatus_client_localisationsRequest($pid, $agencyId, $mergePids, $outputType) {
+function _open_holdingstatus_client_localisationsRequest($pid, $agencyId, $mergePids, $outputType, $role) {
 
   $params = array(
     'action'         => 'localisationsRequest',
     'authentication' => FALSE,
     'agencyId'       => $agencyId,
+    'role'           => $role,
     'pid'            => $pid,
     'mergePids'      => $mergePids,
     'outputType'     => $outputType,
@@ -261,6 +263,15 @@ function open_holdingstatus_form_ting_client_admin_webservices_settings_alter(&$
       Otherwise the default library id is used. Format: "DK-xxxxxx"'
     ),
     '#default_value' => variable_get('openHoldingStatus_agency_id', DEFAULT_AGENCYID),
+  );
+
+  $form['openHoldingStatus']['openHoldingStatus_role'] = array(
+    '#type' => 'textfield',
+    '#title' => t('openHoldingStatus agencyId'),
+    '#description' => t(
+      'Role for localisationsRequest. <br/>Role "bibdk" will, for example, filter school library localizations from result.'
+    ),
+    '#default_value' => variable_get('openHoldingStatus_role', NULL),
   );
 
 }
