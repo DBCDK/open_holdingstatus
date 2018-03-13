@@ -2,10 +2,10 @@
 
 /**
  * @file
- * OpenHoldingsStatus : open_holdingstatus class
+ * OpenHoldingStatus : open_holdingstatus class
  **/
 
-class openHoldingsStatus extends TingClientRequest Implements ITingClientRequestCache {
+class openHoldingStatus extends TingClientRequest Implements ITingClientRequestCache {
 
   protected $agencyId;
   protected $pid;
@@ -14,6 +14,7 @@ class openHoldingsStatus extends TingClientRequest Implements ITingClientRequest
   protected $cacheKey;
   protected $outputType;
   protected $action;
+  protected $role;
 
 
   /* Implementation of ITingClientRequestCache */
@@ -144,6 +145,14 @@ class openHoldingsStatus extends TingClientRequest Implements ITingClientRequest
 
   public function getOutputType() {
     return $this->outputType;
+  }
+
+  public function getRole() {
+    return $this->role;
+  }
+
+  public function setRole($role) {
+    $this->role = $role;
   }
 
   // empty;
