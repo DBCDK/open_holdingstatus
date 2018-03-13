@@ -4,16 +4,33 @@
  * Webservice @ http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenHoldingStatus/trunk/server.php
  * */
 
+define('DEFAULT_AGENCYID', 'DK-870970');
+ 
+/**
+ * Implements hook_ting_client_webservice (@see ting_client.module)
+ * */
+function open_holdingstatus_ting_client_webservice() {
+  $ret = array();
+  $ret['openHoldingStatus']['class']   = 'openHoldingStatus';
+  $ret['openHoldingStatus']['url']     = 'openHoldingStatus_url';
+  $ret['openHoldingStatus']['xsd_url'] = 'openHoldingStatus_xsd_url';
+  return $ret;
+}
+
 /**
  * Get localisations
  * @param array $pid
  * @param string $agency_id
  * */
-function open_holdingstatus_localisationRequest($pid, $agencyId = 'DK-870970') {
+function open_holdingstatus_localisationRequest($pid, $agencyId = FALSE) {
+  if (!$agencyId) {
+    $agencyId = variable_get('openHoldingStatus_agency_id', DEFAULT_AGENCYID);
+  }
+  $role = variable_get('openHoldingStatus_role', NULL);
   $mergePids = FALSE;
   $outputType = 'json';
 
-  $response = _open_holdingstatus_client_localisationsRequest($pid, $agencyId, $mergePids, $outputType);
+  $response = _open_holdingstatus_client_localisationsRequest($pid, $agencyId, $mergePids, $outputType, $role);
 
   $localisations = _open_holdingstatus_parse_localisationsRequest($response);
 
@@ -29,12 +46,13 @@ function open_holdingstatus_localisationRequest($pid, $agencyId = 'DK-870970') {
  * @param string $outputType
  * @return array
  */
-function _open_holdingstatus_client_localisationsRequest($pid, $agencyId, $mergePids, $outputType) {
+function _open_holdingstatus_client_localisationsRequest($pid, $agencyId, $mergePids, $outputType, $role) {
 
   $params = array(
     'action'         => 'localisationsRequest',
     'authentication' => FALSE,
     'agencyId'       => $agencyId,
+    'role'           => $role,
     'pid'            => $pid,
     'mergePids'      => $mergePids,
     'outputType'     => $outputType,
@@ -73,7 +91,7 @@ function _open_holdingstatus_parse_localisationsRequest($response) {
   }
   else {
     if (!isset($response->localisationsResponse->localisations)){
-      return t("no localizations");
+      return t("no localizations", array(), array('context' => 'open_holdingstatus'));
     }
     foreach ($response->localisationsResponse->localisations as $localisation) {
       if ( isset($localisation->pid) ) {
@@ -207,17 +225,6 @@ function open_holdingstatus_parse_request_response($response){
   }
 
 /**
- * Implements hook_ting_client_webservice (@see ting_client.module)
- * */
-function open_holdingstatus_ting_client_webservice() {
-  $ret = array();
-  $ret['openHoldingStatus']['class']   = 'openHoldingStatus';
-  $ret['openHoldingStatus']['url']     = 'openHoldingStatus_url';
-  $ret['openHoldingStatus']['xsd_url'] = 'openHoldingStatus_xsd_url';
-  return $ret;
-}
-
-/**
  * Implements hook_form_FORM_ID_alter (ting_client_admin_webservices_settings)
  * add a field to webservice client settings
  * @url to borchk
@@ -235,7 +242,7 @@ function open_holdingstatus_form_ting_client_admin_webservices_settings_alter(&$
   $form['openHoldingStatus']['openHoldingStatus_url'] = array(
     '#type' => 'textfield',
     '#title' => t('openHoldingStatus URL'),
-    '#description' => t('URL to OpenHoldingStatus e.g.: http://openholdingstatus.addi.dk/1.0/'),
+    '#description' => t('URL to OpenHoldingStatus e.g.: http://openholdingstatus.addi.dk/x.x/'),
     '#required' => TRUE,
     '#default_value' => variable_get('openHoldingStatus_url', FALSE),
   );
@@ -247,6 +254,26 @@ function open_holdingstatus_form_ting_client_admin_webservices_settings_alter(&$
     '#required' => FALSE,
     '#default_value' => variable_get('openHoldingStatus_xsd_url', FALSE),
   );
+
+  $form['openHoldingStatus']['openHoldingStatus_agency_id'] = array(
+    '#type' => 'textfield',
+    '#title' => t('openHoldingStatus agencyId'),
+    '#description' => t(
+      'Default agencyId for localisationsRequest. <br/>If user is logged in and has a favorite library, this is used. 
+      Otherwise the default library id is used. Format: "DK-xxxxxx"'
+    ),
+    '#default_value' => variable_get('openHoldingStatus_agency_id', DEFAULT_AGENCYID),
+  );
+
+  $form['openHoldingStatus']['openHoldingStatus_role'] = array(
+    '#type' => 'textfield',
+    '#title' => t('openHoldingStatus role'),
+    '#description' => t(
+      'Role for localisationsRequest. <br/>Role "bibdk" will, for example, filter school library localisations from result.'
+    ),
+    '#default_value' => variable_get('openHoldingStatus_role', NULL),
+  );
+
 }
 
 /**
@@ -257,20 +284,4 @@ function open_holdingstatus_how_r_u() {
   return array('Holdingstatus' => variable_get('openHoldingStatus_url'));
 }
 
-
-/**
- * Error codes
- */
-t('service_unavailable', array(), array('context' => 'open_holdingstatus'));
-t('error_in_request', array(), array('context' => 'open_holdingstatus'));
-t('service_not_supported_by_library', array(), array('context' => 'open_holdingstatus'));
-t('cannot_parse_library_answer', array(), array('context' => 'open_holdingstatus'));
-t('item_not_found', array(), array('context' => 'open_holdingstatus'));
-t('error_searching_library', array(), array('context' => 'open_holdingstatus'));
-t('error_fetching_request_order', array(), array('context' => 'open_holdingstatus'));
-t('no_holding_return_from_library', array(), array('context' => 'open_holdingstatus'));
-t('no_holdings_specified_by_library', array(), array('context' => 'open_holdingstatus'));
-t('authentication_error', array(), array('context' => 'open_holdingstatus'));
-t('agency_not_found', array(), array('context' => 'open_holdingstatus'));
-t('no_agencies_found', array(), array('context' => 'open_holdingstatus'));
 

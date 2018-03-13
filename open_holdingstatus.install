@@ -13,19 +13,36 @@ function open_holdingstatus_schema() {
   return $schema;
 }
 
+/**
+ * Implements hook_install().
+ */
+function open_holdingstatus_install() {
+  /**
+   * Make error codes translatable right away.
+   */
+  t('service_unavailable', array(), array('context' => 'open_holdingstatus'));
+  t('error_in_request', array(), array('context' => 'open_holdingstatus'));
+  t('service_not_supported_by_library', array(), array('context' => 'open_holdingstatus'));
+  t('cannot_parse_library_answer', array(), array('context' => 'open_holdingstatus'));
+  t('item_not_found', array(), array('context' => 'open_holdingstatus'));
+  t('error_searching_library', array(), array('context' => 'open_holdingstatus'));
+  t('error_fetching_request_order', array(), array('context' => 'open_holdingstatus'));
+  t('no_holding_return_from_library', array(), array('context' => 'open_holdingstatus'));
+  t('no_holdings_specified_by_library', array(), array('context' => 'open_holdingstatus'));
+  t('authentication_error', array(), array('context' => 'open_holdingstatus'));
+  t('agency_not_found', array(), array('context' => 'open_holdingstatus'));
+  t('no_agencies_found', array(), array('context' => 'open_holdingstatus'));
+}
+
 function open_holdingstatus_update_7001() {
 
-  variable_set(
-    'openHoldingStatus_url',
-    'http://openholdingstatus.addi.dk/3.0/'
-  );
-
-  variable_set(
-    'openHoldingStatus_xsd_url',
-    'http://openholdingstatus.addi.dk/3.0/openholdingstatus.xsd'
-  );
-
-  variable_del('open_holdingstatus_url');
-  variable_del('open_holdingstatus_xsd_url');
+  $url = variable_get('open_holdingstatus_url', FALSE);
+  $xsd = variable_get('open_holdingstatus_xsd_url', FALSE);
+  if ($url && $xsd) {
+    variable_set('openHoldingStatus_url', $url);
+    variable_set('openHoldingStatus_xsd_url', $xsd);
+    variable_del('open_holdingstatus_url');
+    variable_del('open_holdingstatus_xsd_url');
+  }
 
 }
