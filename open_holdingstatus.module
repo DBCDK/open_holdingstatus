@@ -267,9 +267,9 @@ function open_holdingstatus_form_ting_client_admin_webservices_settings_alter(&$
 
   $form['openHoldingStatus']['openHoldingStatus_role'] = array(
     '#type' => 'textfield',
-    '#title' => t('openHoldingStatus agencyId'),
+    '#title' => t('openHoldingStatus role'),
     '#description' => t(
-      'Role for localisationsRequest. <br/>Role "bibdk" will, for example, filter school library localizations from result.'
+      'Role for localisationsRequest. <br/>Role "bibdk" will, for example, filter school library localisations from result.'
     ),
     '#default_value' => variable_get('openHoldingStatus_role', NULL),
   );
