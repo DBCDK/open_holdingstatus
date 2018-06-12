@@ -16,7 +16,7 @@ class LocalisationRequestTestCase extends DrupalUnitTestCase {
     return array(
       'name' => t('Open holdingstatus : LocalisationRequest test'),
       'description' => t('Check if parsing a localisationRequest return a valid array of localisations'),
-      'group' => t('bibliotek.dk'),
+      'group' => t('Netpunkt / Bibliotek.dk'),
     );
   }
 
@@ -62,13 +62,12 @@ class OpenHoldingStatusWebTestCase extends DrupalWebTestCase {
     return array(
       'name' => t('Open holdingstatus : webservice test'),
       'description' => t('Check if webserviceRequest returns valid results'),
-      'group' => t('bibliotek.dk'),
+      'group' => t('Netpunkt / Bibliotek.dk'),
     );
   }
 
   public function setUp() {
     parent::setUp(array('open_holdingstatus', 'open_holdingstatus_webservice_mockup'));
-    //parent::setUp(array('open_holdingstatus'));
     variable_set('openHoldingStatus_url', $this->getAbsoluteUrl('/open_holdingstatus_webservice/'));
     variable_set('openHoldingStatus_xsd_url', $this->getAbsoluteUrl('/open_holdingstatus_webservice/openholdingstatus.xsd'));
   }
@@ -87,7 +86,6 @@ class OpenHoldingStatusWebTestCase extends DrupalWebTestCase {
       $localizations['agencies']['715100']['holdings']['870970-basis:28794932']['localisationPid'] == $expected_localisation_pid,
       'lozalizations are set'
     );
-   // $this->verbose(print_r($localizations['agencies']['715100']['holdings']['870970-basis:28794932'],1));
     $agency_ids = array('DK-870970', 'DK-720100', 'DK-710100');
     $holdings  = open_holdingstatus_holdingsRequest($agency_ids, $pids[0]);
 
