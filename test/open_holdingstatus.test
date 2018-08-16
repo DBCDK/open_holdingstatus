@@ -63,7 +63,8 @@ class OpenHoldingStatusWebTestCase extends DrupalWebTestCase {
     return array(
       'name' => t('Open holdingstatus : webservice test'),
       'description' => t('Check if webserviceRequest returns valid results'),
-      'group' => t('Netpunkt / Bibliotek.dk'),
+      //'group' => t('Netpunkt / Bibliotek.dk'),
+      'group' => t('Netpunkt / Bibliotek.dk')
     );
   }
 
