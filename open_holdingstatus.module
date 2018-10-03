@@ -5,10 +5,12 @@
  * */
 
 define('DEFAULT_AGENCYID', 'DK-870970');
- 
+
 /**
  * Implements hook_ting_client_webservice (@see ting_client.module)
- * */
+ *
+ * @return array
+ */
 function open_holdingstatus_ting_client_webservice() {
   $ret = array();
   $ret['openHoldingStatus']['class']   = 'openHoldingStatus';
@@ -19,18 +21,28 @@ function open_holdingstatus_ting_client_webservice() {
 
 /**
  * Get localisations
+ *
  * @param array $pid
- * @param string $agency_id
- * */
-function open_holdingstatus_localisationRequest($pid, $agencyId = FALSE) {
+ * @param bool $mergePids
+ * @param bool $agencyId
+ *
+ * @return array
+ *
+ * @throws \TingClientException
+ */
+function open_holdingstatus_localisationRequest(
+  $pid, $agencyId = FALSE, $mergePids = FALSE) {
+
   if (!$agencyId) {
     $agencyId = variable_get('openHoldingStatus_agency_id', DEFAULT_AGENCYID);
   }
   $role = variable_get('openHoldingStatus_role', NULL);
-  $mergePids = FALSE;
+
   $outputType = 'json';
 
-  $response = _open_holdingstatus_client_localisationsRequest($pid, $agencyId, $mergePids, $outputType, $role);
+  $response = _open_holdingstatus_client_localisationsRequest(
+    $pid, $agencyId, $mergePids, $outputType, $role
+  );
 
   $localisations = _open_holdingstatus_parse_localisationsRequest($response);
 
@@ -40,13 +52,18 @@ function open_holdingstatus_localisationRequest($pid, $agencyId = FALSE) {
 
 /**
  * Do localisation request
+ *
  * @param array $pid
- * @param string $agency_id
+ * @param string $agencyId
  * @param boolean $mergePids
  * @param string $outputType
+ * 
  * @return array
+ *
+ * @throws \TingClientException
  */
-function _open_holdingstatus_client_localisationsRequest($pid, $agencyId, $mergePids, $outputType, $role) {
+function _open_holdingstatus_client_localisationsRequest(
+  $pid, $agencyId, $mergePids, $outputType, $role) {
 
   $params = array(
     'action'         => 'localisationsRequest',
@@ -74,12 +91,14 @@ function _open_holdingstatus_client_localisationsRequest($pid, $agencyId, $merge
 
 /**
  * Parse a localisation request
- * @param array $response
- * @return array
+ *
+ * @param object $response
+ *
+ * @return boolean|array
  */
 function _open_holdingstatus_parse_localisationsRequest($response) {
   // ting_client returns false if something goes wrong
-  if($response === FALSE){
+  if ($response === FALSE) {
     return FALSE;
   }
 
@@ -87,7 +106,10 @@ function _open_holdingstatus_parse_localisationsRequest($response) {
 
   if ( isset($response->error) ) {
     $error = $response->error->errorMessage->{'$'};
-    drupal_set_message(t($error, array(), array('context' => 'open_holdingstatus')), 'error');
+    drupal_set_message(
+      t($error, array(), array('context' => 'open_holdingstatus')),
+      'error'
+    );
   }
   else {
     if (!isset($response->localisationsResponse->localisations)){
@@ -125,12 +147,17 @@ function _open_holdingstatus_parse_localisationsRequest($response) {
 
 /**
  * Do holdings_request
- * @param array $agency_ids
- * @param string $pid
+ *
+ * @param $agency_ids
+ * @param $pid
  * @param string $outputType
+ *
  * @return array
+ *
+ * @throws \TingClientException
  */
-function open_holdingstatus_holdingsRequest ($agency_ids, $pid, $outputType = 'json') {
+function open_holdingstatus_holdingsRequest (
+  $agency_ids, $pid, $outputType = 'json') {
 
   $lookupRecord = array();
 
@@ -158,12 +185,15 @@ function open_holdingstatus_holdingsRequest ($agency_ids, $pid, $outputType = 'j
 
 /**
  * Parse result from openHolding webservicen
+ *
  * @param $response
+ *
  * @return array
  */
 function open_holdingstatus_parse_request_response($response){
   $return = array();
-  // correct responses and error responses are divided into two methods. But we want to combine these
+  // correct responses and error responses are divided into two methods.
+  // But we want to combine these
   if (isset($response->holdingsResponse->responder))
     $return = array_merge($return, $response->holdingsResponse->responder);
   if (isset($response->holdingsResponse->error)){
@@ -173,62 +203,70 @@ function open_holdingstatus_parse_request_response($response){
   return $return;
 }
 
-  /**
-   * Do detailed_holdings_request
-   * @param array $agency_ids
-   * @param string $pid
-   * @param string $outputType
-   * @return array
-   */
-  function open_holdingstatus_detailedHoldingsRequest ($agency_ids, $pid, $outputType = 'json') {
+/**
+ * Do detailed_holdings_request
+ *
+ * @param array $agency_ids
+ * @param string $pid
+ * @param string $outputType
+ *
+ * @return array
+ *
+ * @throws \TingClientException
+ */
+function open_holdingstatus_detailedHoldingsRequest ($agency_ids, $pid, $outputType = 'json') {
 
-    $lookupRecord = array();
+  $lookupRecord = array();
 
-    foreach($agency_ids as $agency_id){
-      $lookupRecord[] = array(
-        'responderId' => $agency_id,
-        'pid' => $pid,
-      );
-    }
-    $request = array(
-      'action'         => 'detailedHoldingsRequest',
-      'authentication' => FALSE,
-      'lookupRecord'   => $lookupRecord,
-      'outputType'     => $outputType,
-      'callback'       => FALSE,
+  foreach($agency_ids as $agency_id){
+    $lookupRecord[] = array(
+      'responderId' => $agency_id,
+      'pid' => $pid,
     );
+  }
+  $request = array(
+    'action'         => 'detailedHoldingsRequest',
+    'authentication' => FALSE,
+    'lookupRecord'   => $lookupRecord,
+    'outputType'     => $outputType,
+    'callback'       => FALSE,
+  );
 
-    if (!class_exists('TingClient') && module_exists('libraries')) {
-      libraries_load('TingClient');
-    }
-    $client = new ting_client_class();
-    $response = $client->do_request('openHoldingStatus', $request);
-    return open_holdingstatus_parse_detailed_request_response($response);
+  if (!class_exists('TingClient') && module_exists('libraries')) {
+    libraries_load('TingClient');
+  }
+  $client = new ting_client_class();
+  $response = $client->do_request('openHoldingStatus', $request);
+  return open_holdingstatus_parse_detailed_request_response($response);
+}
+
+/**
+ * Parse result from openHolding detailed webservicen
+ *
+ * @param $response
+ *
+ * @return array
+ */
+function open_holdingstatus_parse_detailed_request_response($response){
+
+  $return = array();
+  // correct responses and error responses are divided into two methods. But we want to combine these
+  if (isset($response->detailedHoldingsResponse->responderDetailed))
+    $return = array_merge($return, $response->detailedHoldingsResponse->responderDetailed);
+  if (isset($response->detailedHoldingsResponse->error)) {
+    $return = array_merge($return, $response->detailedHoldingsResponse->error);
   }
 
-  /**
-   * Parse result from openHolding detailed webservicen
-   * @param $response
-   * @return array
-   */
-  function open_holdingstatus_parse_detailed_request_response($response){
-
-    $return = array();
-    // correct responses and error responses are divided into two methods. But we want to combine these
-    if (isset($response->detailedHoldingsResponse->responderDetailed))
-      $return = array_merge($return, $response->detailedHoldingsResponse->responderDetailed);
-    if (isset($response->detailedHoldingsResponse->error)){
-      $return = array_merge($return, $response->detailedHoldingsResponse->error);
-    }
-
-    return $return;
-  }
+  return $return;
+}
 
 /**
  * Implements hook_form_FORM_ID_alter (ting_client_admin_webservices_settings)
  * add a field to webservice client settings
- * @url to borchk
- * */
+ *
+ * @param $form
+ * @param $form_state
+ */
 function open_holdingstatus_form_ting_client_admin_webservices_settings_alter(&$form, &$form_state) {
 
   // don't start by defining the fieldset as an array. This way other modules can extend the fieldset.
@@ -278,7 +316,8 @@ function open_holdingstatus_form_ting_client_admin_webservices_settings_alter(&$
 
 /**
  * Implements hook_how_r_u()
- * @return Array
+ *
+ * @return array
  */
 function open_holdingstatus_how_r_u() {
   return array('Holdingstatus' => variable_get('openHoldingStatus_url'));
