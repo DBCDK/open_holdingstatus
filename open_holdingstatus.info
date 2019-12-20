@@ -1,7 +1,7 @@
 name = OpenHoldingStatus client
 description = Client for OpenHoldingStatus, a service that can be used for checking and presenting the availability of materials held by Danish libraries.
 core = 7.x
-version = 7.x-1.3
+version = 7.x-1.4
 package = OpenLibrary
 
 files[] = open_holdingstatus.module
