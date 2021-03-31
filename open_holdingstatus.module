@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Webservice @ http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenHoldingStatus/trunk/server.php
+ * Webservice @ https://openholdingstatus.addi.dk/3.1/server.php
  * */
 
 define('DEFAULT_AGENCYID', 'DK-870970');
@@ -30,8 +30,7 @@ function open_holdingstatus_ting_client_webservice() {
  *
  * @throws \TingClientException
  */
-function open_holdingstatus_localisationRequest(
-  $pid, $agencyId = FALSE, $mergePids = FALSE) {
+function open_holdingstatus_localisationRequest($pid, $agencyId = FALSE, $mergePids = FALSE) {
 
   if (!$agencyId) {
     $agencyId = variable_get('openHoldingStatus_agency_id', DEFAULT_AGENCYID);
@@ -57,13 +56,12 @@ function open_holdingstatus_localisationRequest(
  * @param string $agencyId
  * @param boolean $mergePids
  * @param string $outputType
- * 
- * @return array
+ *
+ * @return object
  *
  * @throws \TingClientException
  */
-function _open_holdingstatus_client_localisationsRequest(
-  $pid, $agencyId, $mergePids, $outputType, $role) {
+function _open_holdingstatus_client_localisationsRequest($pid, $agencyId, $mergePids, $outputType, $role) {
 
   $params = array(
     'action'         => 'localisationsRequest',
@@ -130,10 +128,14 @@ function _open_holdingstatus_parse_localisationsRequest($response) {
       $agencies = ( isset($localisation->agency) ) ? $localisation->agency : array();
       foreach ($agencies as $agency) {
         $agencyId = $agency->agencyId->{'$'};
+        if (isset($agency->codes)) {
+          $codesText = open_holdingstatus_translate_code($agency->codes->{'$'});
+        }
         $localisations['agencies'][$agencyId]['holdings'][$pid] = array(
           'localisationPid' => $agency->localisationPid->{'$'},
           'note' => ( isset($agency->note) ) ? $agency->note->{'$'} : '',
           'codes' => ( isset($agency->codes) ) ? $agency->codes->{'$'} : '',
+          'codesText' => (!is_bool($codesText)) ? $codesText : '',
           'callNumber' => ( isset($agency->callNumber) ) ? $agency->callNumber->{'$'} : '',
           'localIdentifier' => $agency->localIdentifier->{'$'},
         );
@@ -156,8 +158,7 @@ function _open_holdingstatus_parse_localisationsRequest($response) {
  *
  * @throws \TingClientException
  */
-function open_holdingstatus_holdingsRequest (
-  $agency_ids, $pid, $outputType = 'json') {
+function open_holdingstatus_holdingsRequest ($agency_ids, $pid, $outputType = 'json') {
 
   $lookupRecord = array();
 
@@ -297,7 +298,7 @@ function open_holdingstatus_form_ting_client_admin_webservices_settings_alter(&$
     '#type' => 'textfield',
     '#title' => t('openHoldingStatus agencyId'),
     '#description' => t(
-      'Default agencyId for localisationsRequest. <br/>If user is logged in and has a favorite library, this is used. 
+      'Default agencyId for localisationsRequest. <br/>If user is logged in and has a favorite library, this is used.
       Otherwise the default library id is used. Format: "DK-xxxxxx"'
     ),
     '#default_value' => variable_get('openHoldingStatus_agency_id', DEFAULT_AGENCYID),
@@ -323,4 +324,26 @@ function open_holdingstatus_how_r_u() {
   return array('Holdingstatus' => variable_get('openHoldingStatus_url'));
 }
 
-
+/**
+ * Translate the codes field to meaningful sentences.
+ *
+ * @param string $code
+ * @return false|string
+ */
+function open_holdingstatus_translate_code($code) {
+  $return_text = array(
+    'a' => t('no_borrow', array(), array('context' => 'open_holdingstatus')), // Udlånes ikke
+    'b' => t('interurban_no_borrow', array(), array('context' => 'open_holdingstatus')), // Interurban lånes ikke automatisk
+    'c' => t('no_borrow_copy_available', array(), array('context' => 'open_holdingstatus')), // udlånes ikke men kopi tages
+    'd' => t('borrow_to_secure_place', array(), array('context' => 'open_holdingstatus')), // udlånes kun til bevogtede læsesale
+    'e' => t('retrieving_item_not_available', array(), array('context' => 'open_holdingstatus')), // under anskaffelse - endnu ikke tilgængeligt
+    'f' => t('borrow_to_own_place', array(), array('context' => 'open_holdingstatus')), // udlånes kun til brug på stedet (ubevogtet læsesal og lign.)
+    'g' => t('borrow_to_own_users', array(), array('context' => 'open_holdingstatus')), // udlånes kun til egne brugere
+  );
+  if (isset($return_text[$code])) {
+    return $return_text[$code];
+  } else {
+    watchdog('open_holdingstatus', 'An unknown code was submitted: @code', array('@code' => $code), WATCHDOG_ERROR);
+    return FALSE;
+  }
+}
