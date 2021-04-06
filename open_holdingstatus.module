@@ -128,9 +128,7 @@ function _open_holdingstatus_parse_localisationsRequest($response) {
       $agencies = ( isset($localisation->agency) ) ? $localisation->agency : array();
       foreach ($agencies as $agency) {
         $agencyId = $agency->agencyId->{'$'};
-        if (isset($agency->codes)) {
-          $codesText = open_holdingstatus_translate_code($agency->codes->{'$'});
-        }
+        $codesText = (isset($agency->codes)) ? open_holdingstatus_translate_code($agency->codes->{'$'}) : '';
         $localisations['agencies'][$agencyId]['holdings'][$pid] = array(
           'localisationPid' => $agency->localisationPid->{'$'},
           'note' => ( isset($agency->note) ) ? $agency->note->{'$'} : '',
